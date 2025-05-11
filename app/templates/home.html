@@ -1,0 +1,79 @@
+<!-- templates/home.html -->
+{% extends "base.html" %}
+
+{% block title %}Smart Study Planner{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center">
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex flex-col md:flex-row items-center gap-12">
+            <!-- Left Column -->
+            <div class="md:w-1/2">
+                <h1 class="text-5xl font-bold mb-6 text-gray-800">Organize Your Study Smarter</h1>
+                <p class="text-xl mb-8 text-gray-600">
+                    AI-powered study planner that helps you focus on what matters most.
+                    Track progress, get recommendations, and achieve your goals.
+                </p>
+                <div class="flex gap-4">
+                    <a href="{{ url_for('auth.register') }}" 
+                       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium">
+                        Get Started
+                    </a>
+                    <a href="{{ url_for('main.about') }}" 
+                       class="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-lg font-medium">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Right Column -->
+            <div class="md:w-1/2">
+                <img src="https://illustrations.popsy.co/amber/student-writing.svg" 
+                     alt="Student studying" 
+                     class="w-full h-auto max-w-md mx-auto">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="bg-white py-16">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12">Key Features</h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-blue-50 p-6 rounded-xl">
+                <div class="text-blue-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Track Progress</h3>
+                <p class="text-gray-600">Log study sessions and visualize your learning journey with detailed analytics.</p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-blue-50 p-6 rounded-xl">
+                <div class="text-blue-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">AI Recommendations</h3>
+                <p class="text-gray-600">Get personalized study suggestions based on your progress and goals.</p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-blue-50 p-6 rounded-xl">
+                <div class="text-blue-600 mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold mb-2">Time Management</h3>
+                <p class="text-gray-600">Allocate study time efficiently across subjects and topics.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
