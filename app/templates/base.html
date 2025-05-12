@@ -42,21 +42,14 @@
                         <a href="{{ url_for('main.dashboard') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                             <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
                         </a>
-                        <!-- <a href="{{ url_for('main.analytics') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                            <i class="fas fa-chart-line mr-1"></i> Analytics
+                        
+                        <a href="{{ url_for('main.plan') }}" class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                            <i class="fas fa-idea-alt mr-1"></i> Create Plan
                         </a>
-                        <div class="relative group">
-                            <button class="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                                <i class="fas fa-user-circle mr-1"></i> Account
-                                <i class="fas fa-chevron-down ml-1 text-xs"></i>
-                            </button>
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden group-hover:block">
-                                <a href="{{ url_for('main.profile') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-user mr-2"></i> Profile
-                                </a> -->
-                                <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                                </a>
+                    
+                        <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                        </a>
                             </div>
                         </div>
                     {% else %}
@@ -85,12 +78,7 @@
                     <a href="{{ url_for('main.dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100">
                         <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
                     </a>
-                    <!-- <a href="{{ url_for('main.analytics') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100">
-                        <i class="fas fa-chart-line mr-2"></i> Analytics
-                    </a>
-                    <a href="{{ url_for('main.profile') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100">
-                        <i class="fas fa-user mr-2"></i> Profile
-                    </a> -->
+                  
                     <a href="{{ url_for('auth.logout') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-gray-100">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </a>

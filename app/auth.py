@@ -36,7 +36,7 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash("Logged in successfully.", "success")
-            return redirect(url_for('main.dashboard'))  # Or wherever your app goes after login
+            return redirect(url_for('main.dashboard'))
         else:
             flash("Invalid credentials", "danger")
 
