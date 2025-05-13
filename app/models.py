@@ -54,5 +54,7 @@ class StudyTask(db.Model):
     title: Mapped[str] = mapped_column(db.String(120))
     description: Mapped[str] = mapped_column(db.String(300))
     is_done: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    duration_minutes: Mapped[int] = mapped_column(db.Integer)  # e.g., 120 = 2 hours
+    scheduled_date: Mapped[date] = mapped_column(db.Date)  # <-- NEW FIELD
 
     plan: Mapped["StudyPlan"] = relationship(back_populates="tasks")

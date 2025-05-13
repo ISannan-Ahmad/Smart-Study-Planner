@@ -27,6 +27,15 @@ def dashboard():
     return render_template('dashboard.html')
 
 
+def parse_duration_to_minutes(duration_str):
+    # Converts strings like "2 hours", "1.5 hours" into minutes
+    match = re.match(r"(\d+(\.\d+)?)\s*hours?", duration_str.lower())
+    if match:
+        hours = float(match.group(1))
+        return int(hours * 60)
+    return 0
+
+
 @main.route('/plan', methods=['GET', 'POST'])
 @login_required
 def plan():
@@ -78,16 +87,23 @@ def plan():
         db.session.commit()
 
         db.session.refresh(study_plan)
+        tasks_data = generate_study_tasks(subjects=study_plan.subjects, start_time=study_plan.start_time, end_time=study_plan.end_time)
 
-        tasks = generate_study_tasks(study_plan.subjects)
+                
+        for day, tasks in tasks_data.items():
+            for task_data in tasks:
+                scheduled_date = datetime.strptime(task_data["scheduled_date"], "%Y-%m-%d").date()
+                duration_minutes = parse_duration_to_minutes(task_data["duration"])
 
-        for task_data in tasks:
-            task = StudyTask(
-                title=task_data["title"],
-                description=task_data["description"],
-                plan_id=study_plan.id,
-            )
-            db.session.add(task)
+                task = StudyTask(
+                    title=task_data["task"],
+                    description=task_data["description"],
+                    scheduled_date=scheduled_date,
+                    duration_minutes=duration_minutes,
+                    plan_id=study_plan.id
+                )
+                db.session.add(task)
+
         db.session.commit()
 
         return redirect(url_for('main.dashboard'))
