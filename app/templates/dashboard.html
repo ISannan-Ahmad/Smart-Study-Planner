@@ -1,11 +1,14 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Dashboard</title>
-</head>
-<body>
-    <h2>Welcome to your Dashboard</h2>
-    <p>Here we will show your study schedule.</p>
-    <a href="/logout">Logout</a>
-</body>
-</html>
+<h2>Study Tasks</h2>
+{% if tasks %}
+  <ul>
+    {% for task in tasks %}
+      <li>
+        <strong>{{ task.scheduled_date }}</strong> - 
+        {{ task.title }}: {{ task.description }} 
+        ({{ task.duration_minutes }} minutes)
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No tasks found for this study plan.</p>
+{% endif %}

@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime
 import json
+from pydantic import ValidationError
 from .models import db, StudyPlan, Subject, Topic, StudyTask
 from collections import defaultdict
 import re
 from app.ai import generate_study_tasks
+from collections import defaultdict
 
 
 main = Blueprint('main', __name__)
@@ -24,7 +26,16 @@ def about():
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    return render_template('dashboard.html')
+    study_plan = StudyPlan.query.filter_by(user_id=current_user.id).first()
+    if not study_plan:
+        return redirect(url_for('main.plan'))
+
+    print(f"Study Plan: {study_plan}")  # Debugging line to check if a study plan is returned
+    tasks = StudyTask.query.filter_by(plan_id=study_plan.id).order_by(StudyTask.scheduled_date).all()
+    print(f"Tasks fetched: {[task.title for task in tasks]}")  # Debugging line
+    return render_template('dashboard.html', tasks=tasks)
+
+
 
 
 def parse_duration_to_minutes(duration_str):
@@ -34,6 +45,13 @@ def parse_duration_to_minutes(duration_str):
         hours = float(match.group(1))
         return int(hours * 60)
     return 0
+
+
+def group_tasks_by_day(tasks):
+    grouped = defaultdict(list)
+    for task in tasks:
+        grouped[task.scheduled_date].append(task)
+    return grouped
 
 
 @main.route('/plan', methods=['GET', 'POST'])
@@ -89,23 +107,34 @@ def plan():
         db.session.refresh(study_plan)
         tasks_data = generate_study_tasks(subjects=study_plan.subjects, start_time=study_plan.start_time, end_time=study_plan.end_time)
 
-                
-        for day, tasks in tasks_data.items():
-            for task_data in tasks:
-                scheduled_date = datetime.strptime(task_data["scheduled_date"], "%Y-%m-%d").date()
-                duration_minutes = parse_duration_to_minutes(task_data["duration"])
+        if tasks_data:
+            grouped_tasks = group_tasks_by_day(tasks_data)
 
-                task = StudyTask(
-                    title=task_data["task"],
-                    description=task_data["description"],
-                    scheduled_date=scheduled_date,
-                    duration_minutes=duration_minutes,
-                    plan_id=study_plan.id
-                )
-                db.session.add(task)
+            for day, tasks in grouped_tasks.items():
+                for task_data in tasks:
+                    scheduled_date = datetime.strptime(task_data.scheduled_date, "%Y-%m-%d").date()
+                    duration_minutes = parse_duration_to_minutes(task_data.duration)
 
-        db.session.commit()
+                    task = StudyTask(
+                        title=task_data.task,
+                        description=task_data.description,
+                        scheduled_date=scheduled_date,
+                        duration_minutes=duration_minutes,
+                        plan_id=study_plan.id
+                    )
+                    db.session.add(task)
 
-        return redirect(url_for('main.dashboard'))
+            db.session.commit()
+
+            return redirect(url_for('main.dashboard'))
 
     return render_template('planform.html')
+
+
+@main.route('/task/<int:task_id>/complete', methods=['POST'])
+@login_required
+def complete_task(task_id):
+    task = StudyTask.query.get_or_404(task_id)
+    task.is_completed = True
+    db.session.commit()
+    return redirect(url_for('main.dashboard'))
