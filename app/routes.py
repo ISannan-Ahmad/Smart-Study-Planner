@@ -131,10 +131,14 @@ def plan():
     return render_template('planform.html')
 
 
-@main.route('/task/<int:task_id>/complete', methods=['POST'])
+@main.route('/task/<int:task_id>/complete', methods=['GET', 'POST'])
 @login_required
 def complete_task(task_id):
     task = StudyTask.query.get_or_404(task_id)
-    task.is_completed = True
+    task.is_done = not task.is_done
     db.session.commit()
     return redirect(url_for('main.dashboard'))
+
+@main.context_processor
+def inject_now():
+    return {'now': datetime.now}
