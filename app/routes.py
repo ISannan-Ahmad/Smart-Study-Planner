@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 import json
 from pydantic import ValidationError
-from .models import db, StudyPlan, Subject, Topic, StudyTask
+from .models import db, StudyPlan, Subject, Topic, StudyTask, PersonalTask
 from collections import defaultdict
 import re
 from app.ai import generate_study_tasks
@@ -21,21 +21,56 @@ def home():
 @main.route('/about')
 def about():
     return render_template('about.html')
-
-
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    study_plan = StudyPlan.query.filter_by(user_id=current_user.id).first()
-    if not study_plan:
-        return redirect(url_for('main.plan'))
-
-    print(f"Study Plan: {study_plan}")  # Debugging line to check if a study plan is returned
-    tasks = StudyTask.query.filter_by(plan_id=study_plan.id).order_by(StudyTask.scheduled_date).all()
-    print(f"Tasks fetched: {[task.title for task in tasks]}")  # Debugging line
-    return render_template('dashboard.html', tasks=tasks)
-
-
+    # Get all study plans
+    study_plans = StudyPlan.query.filter_by(user_id=current_user.id)\
+                               .order_by(StudyPlan.updated_at.desc())\
+                               .all()
+    
+    # Get all tasks across all plans
+    all_tasks = StudyTask.query.join(StudyPlan)\
+                             .filter(StudyPlan.user_id == current_user.id)\
+                             .all()
+    ai_tasks = [t for t in all_tasks if t.is_ai_generated]
+    personal_tasks = PersonalTask.query.filter_by(user_id=current_user.id).all()
+    
+    # Calculate stats
+    stats = {
+        'total_plans': len(study_plans),
+        'total_tasks': len(all_tasks) + len(personal_tasks),
+        'total_ai_tasks': len(ai_tasks),
+        'completed_ai_tasks': len([t for t in ai_tasks if t.is_done]),
+        'total_personal_tasks': len(personal_tasks),
+        'completed_personal_tasks': len([t for t in personal_tasks if t.is_done]),
+        'last_updated': max(plan.updated_at for plan in study_plans) if study_plans else datetime.now(),
+        'completion_rate': round(
+            len([t for t in all_tasks if t.is_done]) / len(all_tasks) * 100 if all_tasks else 0,
+            1
+        ),
+        'active_plan_name': study_plans[0].name if study_plans else "No active plan"
+    }
+    
+    # Get active plan (most recently updated)
+    active_plan = study_plans[0] if study_plans else None
+    
+    # Ensure subjects and subject_hours are always defined
+    subjects = study_plans[0].subjects if study_plans else []
+    subject_hours = []
+    
+    for subject in subjects:
+        subject_tasks = [t for t in all_tasks if t.title.startswith(subject.name)]
+        total_hours = sum(t.duration_minutes for t in subject_tasks) / 60
+        subject_hours.append(round(total_hours, 2))
+    
+    return render_template('dashboard.html',
+                         study_plans=study_plans,
+                         study_plan=study_plans[0] if study_plans else None,
+                         subjects=subjects,
+                         subject_hours=subject_hours,
+                         stats=stats,
+                         now=datetime.now())
 
 
 def parse_duration_to_minutes(duration_str):
@@ -142,3 +177,90 @@ def complete_task(task_id):
 @main.context_processor
 def inject_now():
     return {'now': datetime.now}
+
+
+@main.route('/tasks/ai')
+@login_required
+def ai_tasks():
+    study_plan = StudyPlan.query.filter_by(user_id=current_user.id).first_or_404()
+    ai_tasks = [task for task in study_plan.tasks if task.title.startswith(('Study ', 'Revise '))]
+    return render_template('ai_tasks.html', tasks=ai_tasks)
+
+@main.route('/tasks/personal')
+@login_required
+def personal_tasks():
+    personal_tasks = PersonalTask.query.filter_by(user_id=current_user.id)\
+                                     .order_by(PersonalTask.due_date)\
+                                     .all()
+    return render_template('personal_tasks.html', tasks=personal_tasks)
+
+@main.route('/tasks/personal/add', methods=['POST'])
+@login_required
+def add_personal_task():
+    due_date = datetime.strptime(request.form['due_date'], '%Y-%m-%d').date() if request.form['due_date'] else None
+    
+    task = PersonalTask(
+        title=request.form['title'],
+        description=request.form['description'],
+        due_date=due_date,
+        user_id=current_user.id
+    )
+    
+    db.session.add(task)
+    db.session.commit()
+    flash('Personal task added successfully!', 'success')
+    return redirect(url_for('main.personal_tasks'))
+
+@main.route('/tasks/personal/<int:task_id>/complete', methods=['POST'])
+@login_required
+def complete_personal_task(task_id):
+    task = PersonalTask.query.filter_by(id=task_id, user_id=current_user.id).first_or_404()
+    task.is_done = not task.is_done
+    db.session.commit()
+    return redirect(url_for('main.personal_tasks'))
+
+
+# Personal Task Routes
+@main.route('/tasks/personal/<int:task_id>/update', methods=['POST'])
+@login_required
+def update_personal_task(task_id):
+    task = PersonalTask.query.filter_by(id=task_id, user_id=current_user.id).first_or_404()
+    
+    task.title = request.form['title']
+    task.description = request.form['description']
+    task.due_date = datetime.strptime(request.form['due_date'], '%Y-%m-%d').date() if request.form['due_date'] else None
+    task.priority = int(request.form['priority'])
+    task.updated_at = datetime.now()
+    
+    db.session.commit()
+    flash('Task updated successfully!', 'success')
+    return redirect(url_for('main.personal_tasks'))
+
+@main.route('/tasks/personal/<int:task_id>/delete', methods=['POST'])
+@login_required
+def delete_personal_task(task_id):
+    task = PersonalTask.query.filter_by(id=task_id, user_id=current_user.id).first_or_404()
+    db.session.delete(task)
+    db.session.commit()
+    flash('Task deleted successfully!', 'success')
+    return redirect(url_for('main.personal_tasks'))
+
+# AI Dashboard Route
+@main.route('/ai-dashboard')
+@login_required
+def ai_dashboard():
+    study_plans = StudyPlan.query.filter_by(user_id=current_user.id).all()
+    ai_tasks = StudyTask.query.join(StudyPlan).filter(
+        StudyPlan.user_id == current_user.id,
+        StudyTask.is_ai_generated == True
+    ).order_by(StudyTask.scheduled_date).all()
+    
+    stats = {
+        'total_ai_tasks': len(ai_tasks),
+        'completed_ai_tasks': len([t for t in ai_tasks if t.is_done])
+    }
+    
+    return render_template('ai_dashboard.html',
+                         study_plans=study_plans,
+                         ai_tasks=ai_tasks,
+                         stats=stats)

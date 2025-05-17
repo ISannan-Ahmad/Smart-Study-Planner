@@ -3,324 +3,229 @@
 {% block title %}Dashboard - Smart Study Planner{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-  <div class="flex flex-col lg:flex-row gap-8">
-    <!-- Tasks Section -->
-    <div class="lg:w-2/3">
-      <div class="bg-white rounded-xl shadow-md p-6">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-gray-800">Your Study Tasks</h2>
-          
-          <!-- Improved Sorting Dropdown -->
-          <div class="relative">
-            <button id="sort-button" class="flex items-center space-x-2 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 text-sm text-gray-700 transition-colors">
-              <span>Sort by: Date (Oldest First)</span>
-              <i class="fas fa-chevron-down text-xs"></i>
-            </button>
-            <div id="sort-options" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 hidden border border-gray-200">
-              <a href="#" data-sort="date-asc" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Date (Oldest First)</a>
-              <a href="#" data-sort="date-desc" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Date (Newest First)</a>
-              <a href="#" data-sort="priority" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Priority</a>
-              <a href="#" data-sort="duration" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Duration</a>
-            </div>
+<div class="container mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8">
+  <!-- Side Menu -->
+  <div class="lg:w-1/4">
+    <div class="bg-white rounded-xl shadow-md p-6 sticky top-4">
+      <h2 class="text-xl font-bold mb-6 text-gray-800">Study Overview</h2>
+      
+      <!-- Navigation -->
+      <nav class="space-y-2">
+        <a href="{{ url_for('main.dashboard') }}" class="block px-4 py-2 rounded-lg bg-blue-50 text-blue-600 font-medium">
+          <i class="fas fa-chart-pie mr-2"></i> Overview
+        </a>
+        <a href="{{ url_for('main.ai_tasks') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+          <i class="fas fa-robot mr-2"></i> AI Tasks
+        </a>
+        <a href="{{ url_for('main.personal_tasks') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+          <i class="fas fa-tasks mr-2"></i> My Tasks
+        </a>
+        <a href="{{ url_for('main.plan') }}" class="block px-4 py-2 rounded-lg hover:bg-gray-100 text-gray-700">
+          <i class="fas fa-calendar-plus mr-2"></i> Create Plan
+        </a>
+      </nav>
+      
+      <!-- Quick Stats -->
+      <div class="mt-8 pt-6 border-t border-gray-200">
+        <h3 class="font-medium text-gray-700 mb-3">Quick Stats</h3>
+        <div class="space-y-4">
+          <div>
+            <p class="text-sm text-gray-500">Total Tasks</p>
+            <p class="text-2xl font-bold">{{ stats.total_tasks }}</p>
           </div>
-        </div>
-
-        <div id="tasks-container" class="space-y-3">
-          {% for task in tasks %}
-            <div class="task-item group p-4 border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 ease-in-out {% if task.is_completed %}bg-gray-50 opacity-90{% endif %}"
-                data-id="{{ task.id }}"
-                data-completed="{{ 'true' if task.is_done else 'false' }}"
-                data-date="{{ task.scheduled_date.strftime('%Y-%m-%d') }}"
-                data-priority="{{ task.priority or 3 }}"
-                data-duration="{{ task.duration_minutes }}">
-              <a href="{{ url_for('main.complete_task', task_id=task.id) }}" 
-                class="block no-underline"
-                onclick="return handleTaskCompletion(event, this)">
-                <div class="flex items-start">
-                  <span class="mr-3 mt-1 p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 group-hover:bg-green-50 group-hover:text-green-500{% endif %} transition-colors duration-300">
-                    <i class="fas {% if task.is_completed %}fa-check-circle{% else %}fa-circle{% endif %} text-sm transition-all duration-300"></i>
-                  </span>
-                  <div class="flex-grow">
-                    <div class="flex justify-between items-start">
-                      <div>
-                        <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %} transition-all duration-300">
-                          {{ task.title }}
-                        </h3>
-                        <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %} transition-all duration-300">
-                          {{ task.description }}
-                        </p>
-                      </div>
-                      <span class="text-xs px-2.5 py-1 rounded-full bg-blue-100 text-blue-800 {% if task.is_done %}opacity-75{% endif %} transition-all duration-300">
-                        {{ task.duration_minutes }} min
-                      </span>
-                    </div>
-                    <div class="flex items-center mt-3 text-xs text-gray-500 {% if task.is_done %}opacity-75{% endif %} transition-all duration-300">
-                      <i class="far fa-calendar-alt mr-1.5"></i>
-                      <span>{{ task.scheduled_date.strftime('%a, %b %d') }}</span>
-                      <span class="mx-2 text-gray-300">|</span>
-                      <i class="fas fa-bolt mr-1.5 text-{% if task.priority == 1 %}red-500{% elif task.priority == 2 %}yellow-500{% else %}gray-400{% endif %}"></i>
-                      <span>{% if task.priority == 1 %}High{% elif task.priority == 2 %}Medium{% else %}Low{% endif %} priority</span>
-                    </div>
-                  </div>
-                </div>
-              </a>
-            </div>
-            {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <!-- Calendar Section -->
-    <div class="lg:w-1/3">
-      <div class="bg-white rounded-xl shadow-md p-6 sticky top-4">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-xl font-bold text-gray-800" id="calendar-month"></h2>
-          <div class="flex space-x-2">
-            <button id="prev-month" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <i class="fas fa-chevron-left text-gray-600"></i>
-            </button>
-            <button id="next-month" class="p-2 rounded-lg hover:bg-gray-100 transition-colors">
-              <i class="fas fa-chevron-right text-gray-600"></i>
-            </button>
+          <div>
+            <p class="text-sm text-gray-500">Completed</p>
+            <p class="text-2xl font-bold">{{ stats.completed_ai_tasks + stats.completed_personal_tasks }}</p>
           </div>
-        </div>
-
-        <div id="calendar" class="mb-4">
-          <!-- Calendar will be inserted here by JavaScript -->
-        </div>
-
-        <div class="pt-4 border-t border-gray-200">
-          <h3 class="font-medium text-gray-700 mb-3">Upcoming Deadlines</h3>
-          <div id="upcoming-tasks">
-            {% set upcoming = tasks|selectattr('scheduled_date', 'ge', now().date())|list|sort(attribute='scheduled_date') %}
-            {% if upcoming %}
-              <ul class="space-y-2.5">
-                {% for task in upcoming[:3] %}
-                <li class="flex items-start">
-                  <span class="mt-1.5 mr-2 w-2 h-2 rounded-full bg-blue-500"></span>
-                  <div>
-                    <p class="text-sm font-medium text-gray-800">{{ task.title }}</p>
-                    <p class="text-xs text-gray-500">{{ task.scheduled_date.strftime('%b %d') }}</p>
-                  </div>
-                </li>
-                {% endfor %}
-              </ul>
-            {% else %}
-              <p class="text-sm text-gray-500">No upcoming deadlines</p>
-            {% endif %}
+          <div>
+            <p class="text-sm text-gray-500">Upcoming</p>
+            <p class="text-2xl font-bold">{{ stats.total_ai_tasks + stats.total_personal_tasks - (stats.completed_ai_tasks + stats.completed_personal_tasks) }}</p>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Main Content - Overview Only -->
+  <div class="lg:w-3/4">
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">
+          {% if study_plan %}
+            {{ study_plan.name }} Overview
+          {% else %}
+            Study Overview
+          {% endif %}
+        </h2>
+        <span class="text-sm text-gray-500">Last updated: {{ stats.last_updated.strftime('%b %d, %Y') }}</span>
+      </div>
+      
+      <!-- Progress Charts -->
+      <div class="grid md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <h3 class="font-medium mb-2">Completion Progress</h3>
+          <div class="h-40 flex items-center justify-center">
+            <div class="text-4xl font-bold text-blue-600">
+              {{ stats.completion_rate }}%
+            </div>
+          </div>
+        </div>
+        <div class="bg-green-50 p-4 rounded-lg">
+          <h3 class="font-medium mb-2">Time Distribution</h3>
+          <div class="h-40 flex items-center justify-center">
+            <div id="timeChart" class="w-full h-full"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Subject Progress -->
+      {% if study_plan and study_plan.subjects %}
+      <div class="mb-8">
+        <h3 class="font-medium mb-3">Subject Progress</h3>
+        <div class="space-y-3">
+          {% for subject in study_plan.subjects %}
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="text-sm font-medium">{{ subject.name }}</span>
+              <span class="text-sm">
+                {% set subject_tasks = [] %}
+                {% for task in all_tasks %}
+                  {% if task.title.startswith(subject.name) %}
+                    {% set _ = subject_tasks.append(task) %}
+                  {% endif %}
+                {% endfor %}
+                {{ subject_tasks|selectattr('is_done')|list|length }}/{{ subject_tasks|length }}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2.5">
+              <div class="bg-blue-600 h-2.5 rounded-full min-w-[2px]" 
+                   style="width: {{ (subject_tasks|selectattr('is_done')|list|length / subject_tasks|length * 100) if subject_tasks|length > 0 else 0 }}%">
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      
+      <!-- Upcoming Deadlines -->
+      <div>
+        <h3 class="font-medium mb-3">Upcoming Deadlines</h3>
+        {% if upcoming_deadlines %}
+        <div class="space-y-2">
+          {% for deadline in upcoming_deadlines %}
+          <div class="p-3 border rounded-lg {% if deadline.days_left <= 3 %}bg-red-50 border-red-200{% endif %}">
+            <div class="flex justify-between items-center">
+              <div>
+                <h4 class="font-medium">{{ deadline.subject.name }}</h4>
+                <p class="text-sm text-gray-600">{{ deadline.subject.exam_date.strftime('%b %d, %Y') }}</p>
+              </div>
+              <span class="text-sm {% if deadline.days_left <= 3 %}text-red-600 font-medium{% else %}text-gray-500{% endif %}">
+                {{ deadline.days_left }} days left
+              </span>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500">No upcoming deadlines</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Current date tracking
-  const today = new Date();
-  let currentMonth = today.getMonth();
-  let currentYear = today.getFullYear();
-
-  // Sort dropdown functionality
-  const sortButton = document.getElementById('sort-button');
-  const sortOptions = document.getElementById('sort-options');
+  const timeChartEl = document.getElementById('timeChart');
   
-  sortButton.addEventListener('click', function(e) {
-    e.stopPropagation();
-    sortOptions.classList.toggle('hidden');
-  });
-
-  document.addEventListener('click', function() {
-    sortOptions.classList.add('hidden');
-  });
-
-  // Sort tasks
-  document.querySelectorAll('#sort-options a').forEach(option => {
-    option.addEventListener('click', function(e) {
-      e.preventDefault();
-      const sortType = this.getAttribute('data-sort');
-      sortTasks(sortType);
-      sortButton.querySelector('span').textContent = `Sort by: ${this.textContent}`;
-      sortOptions.classList.add('hidden');
-    });
-  });
-
- function sortTasks(sortType) {
-    const container = document.getElementById('tasks-container');
-    const tasks = Array.from(document.querySelectorAll('.task-item'));
+  // Show loading state
+  if (timeChartEl) {
+    timeChartEl.innerHTML = `
+      <div class="chart-fallback">
+        <i class="fas fa-spinner fa-spin text-blue-500 text-2xl mb-2"></i>
+        <p class="text-gray-500">Loading chart...</p>
+      </div>
+    `;
     
-    tasks.sort((a, b) => {
-        // Always keep completed tasks at the bottom
-        const aCompleted = a.dataset.completed === 'true';
-        const bCompleted = b.dataset.completed === 'true';
-        
-        if (aCompleted && !bCompleted) return 1;
-        if (!aCompleted && bCompleted) return -1;
-        
-        // Then sort by the selected criteria
-        switch(sortType) {
-            case 'date-asc':
-                return new Date(a.dataset.date) - new Date(b.dataset.date);
-            case 'date-desc':
-                return new Date(b.dataset.date) - new Date(a.dataset.date);
-            case 'priority':
-                return parseInt(a.dataset.priority) - parseInt(b.dataset.priority);
-            case 'duration':
-                return parseInt(a.dataset.duration) - parseInt(b.dataset.duration);
-            default:
-                return 0;
-        }
-    });
-
-    // Re-insert sorted tasks
-    container.innerHTML = '';
-    tasks.forEach(task => {
-        container.appendChild(task);
-    });
-}
-
-  // Calendar rendering
-  function renderCalendar(month, year) {
-    const calendarEl = document.getElementById('calendar');
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-                       "July", "August", "September", "October", "November", "December"];
-    
-    // Update month display
-    document.getElementById('calendar-month').textContent = `${monthNames[month]} ${year}`;
-    
-    // Weekday headers
-    let html = '<div class="grid grid-cols-7 gap-1 text-xs text-center font-medium text-gray-500 mb-2">';
-    ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(day => {
-      html += `<div>${day}</div>`;
-    });
-    html += '</div><div class="grid grid-cols-7 gap-1">';
-
-    // Blank days before first day of month
-    for (let i = 0; i < firstDay.getDay(); i++) {
-      html += '<div class="h-8"></div>';
-    }
-
-    // Days of month
-    for (let day = 1; day <= lastDay.getDate(); day++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-      const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
-      const hasTasks = Array.from(document.querySelectorAll('.task-item')).some(
-        task => task.dataset.date === dateStr
-      );
-
-      html += `
-        <div class="h-8 flex items-center justify-center rounded-lg text-sm relative
-          ${isToday ? 'bg-blue-100 font-bold text-blue-800' : ''}
-          ${hasTasks ? 'text-blue-600' : 'text-gray-700'}">
-          ${day}
-          ${hasTasks ? '<span class="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-blue-500"></span>' : ''}
+    try {
+      // Get data from template
+      const subjectNames = JSON.parse('{{ subjects|map(attribute="name")|list|tojson|safe }}');
+      const subjectHours = JSON.parse('{{ subject_hours|tojson|safe }}');
+      
+      // Filter valid data
+      const validData = subjectNames.map((name, i) => ({
+        name: name,
+        hours: subjectHours[i] || 0
+      })).filter(item => item.hours > 0);
+      
+      if (validData.length > 0) {
+        new Chart(timeChartEl, {
+          type: 'doughnut',
+          data: {
+            labels: validData.map(item => item.name),
+            datasets: [{
+              data: validData.map(item => item.hours),
+              backgroundColor: [
+                '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+                '#ec4899', '#14b8a6', '#f97316', '#64748b', '#a855f7'
+              ],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+              legend: {
+                position: 'right',
+                labels: {
+                  boxWidth: 12,
+                  padding: 20
+                }
+              },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${context.raw} hrs`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      } else {
+        timeChartEl.innerHTML = `
+          <div class="chart-fallback">
+            <i class="fas fa-chart-pie text-gray-300 text-4xl mb-2"></i>
+            <p class="text-gray-500">No data available</p>
+          </div>
+        `;
+      }
+    } catch (error) {
+      console.error('Chart error:', error);
+      timeChartEl.innerHTML = `
+        <div class="chart-fallback">
+          <i class="fas fa-exclamation-triangle text-red-300 text-4xl mb-2"></i>
+          <p class="text-red-500">Error loading chart</p>
         </div>
       `;
-    }
-
-    calendarEl.innerHTML = html + '</div>';
-  }
-
-  // Initialize calendar
-  renderCalendar(currentMonth, currentYear);
-
-  // Calendar navigation
-  document.getElementById('prev-month').addEventListener('click', () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    renderCalendar(currentMonth, currentYear);
-  });
-
-  document.getElementById('next-month').addEventListener('click', () => {
-    currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    }
-    renderCalendar(currentMonth, currentYear);
-  });
-
-  // Task completion handler
-  window.handleTaskCompletion = function(event, link) {
-    event.preventDefault();
-    const taskItem = link.closest('.task-item');
-    
-    // Visual changes
-    taskItem.classList.add('bg-gray-50', 'opacity-90');
-    taskItem.querySelector('i').classList.replace('fa-circle', 'fa-check-circle');
-    taskItem.querySelector('span').classList.replace('bg-gray-100', 'bg-green-100');
-    taskItem.querySelector('span').classList.replace('text-gray-400', 'text-green-600');
-    taskItem.querySelector('h3').classList.add('line-through', 'text-gray-600');
-    taskItem.dataset.completed = 'true';
-    
-    // Move to bottom after animation
-    setTimeout(() => {
-      const container = document.getElementById('tasks-container');
-      container.appendChild(taskItem);
-      
-      // Update upcoming tasks list
-      updateUpcomingTasks();
-      
-      // Make the actual request
-      window.location.href = link.href;
-    }, 300);
-    
-    return false;
-  };
-
-  function updateUpcomingTasks() {
-    const upcomingContainer = document.getElementById('upcoming-tasks');
-    const incompleteTasks = Array.from(document.querySelectorAll('.task-item[data-completed="false"]'));
-    const upcoming = incompleteTasks
-      .filter(task => new Date(task.dataset.date) >= new Date())
-      .sort((a, b) => new Date(a.dataset.date) - new Date(b.dataset.date))
-      .slice(0, 3);
-    
-    if (upcoming.length > 0) {
-      let html = '<ul class="space-y-2.5">';
-      upcoming.forEach(task => {
-        const date = new Date(task.dataset.date);
-        html += `
-          <li class="flex items-start">
-            <span class="mt-1.5 mr-2 w-2 h-2 rounded-full bg-blue-500"></span>
-            <div>
-              <p class="text-sm font-medium text-gray-800">${task.querySelector('h3').textContent}</p>
-              <p class="text-xs text-gray-500">${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</p>
-            </div>
-          </li>
-        `;
-      });
-      html += '</ul>';
-      upcomingContainer.innerHTML = html;
-    } else {
-      upcomingContainer.innerHTML = '<p class="text-sm text-gray-500">No upcoming deadlines</p>';
     }
   }
 });
 </script>
 
 <style>
-.task-item {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.task-item:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-}
-#sort-options {
-  transition: opacity 0.2s ease, transform 0.2s ease;
-}
-#sort-options.hidden {
-  opacity: 0;
-  transform: translateY(-10px);
-  pointer-events: none;
-}
+  .chart-fallback {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+  }
 </style>
 {% endblock %}

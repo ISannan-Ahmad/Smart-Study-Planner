@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+
+{% block title %}Personal Tasks{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+  <div class="flex justify-between items-center mb-8">
+    <h1 class="text-2xl font-bold">My Personal Tasks</h1>
+    <button onclick="showAddTaskModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+      <i class="fas fa-plus mr-1"></i> Add Task
+    </button>
+  </div>
+
+  <div class="bg-white rounded-lg shadow-sm p-6">
+    {% if tasks %}
+      <div class="space-y-3">
+        {% for task in tasks %}
+          <div class="p-4 border rounded-lg {% if task.is_done %}bg-gray-50{% endif %}">
+            <div class="flex items-start">
+              <form method="POST" action="{{ url_for('main.complete_personal_task', task_id=task.id) }}" class="mr-3">
+                <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %}">
+                  <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %}"></i>
+                </button>
+              </form>
+              <div class="flex-grow">
+                <h3 class="font-medium {% if task.is_done %}line-through text-gray-600{% endif %}">
+                  {{ task.title }}
+                </h3>
+                {% if task.description %}
+                <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %}">
+                  {{ task.description }}
+                </p>
+                {% endif %}
+                {% if task.due_date %}
+                <div class="mt-2 text-xs text-gray-500">
+                  <i class="far fa-calendar-alt mr-1"></i>
+                  Due: {{ task.due_date.strftime('%b %d, %Y') }}
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="text-gray-500">You haven't added any personal tasks yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Add Task Modal -->
+<div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-bold">Add Personal Task</h3>
+      <button onclick="hideAddTaskModal()" class="text-gray-500 hover:text-gray-700">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form method="POST" action="{{ url_for('main.add_personal_task') }}">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Task Name*</label>
+          <input type="text" name="title" class="w-full px-3 py-2 border rounded-md" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <textarea name="description" class="w-full px-3 py-2 border rounded-md"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Due Date</label>
+          <input type="date" name="due_date" class="w-full px-3 py-2 border rounded-md">
+        </div>
+      </div>
+      
+      <div class="mt-6 flex justify-end space-x-3">
+        <button type="button" onclick="hideAddTaskModal()" class="px-4 py-2 border rounded-md">
+          Cancel
+        </button>
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">
+          Add Task
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- Add this modal at the bottom of personal_tasks.html -->
+<div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-xl p-6 w-full max-w-md">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-bold">Edit Task</h3>
+      <button onclick="hideEditModal()" class="text-gray-500 hover:text-gray-700">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <form id="editTaskForm" method="POST">
+      <input type="hidden" name="task_id" id="editTaskId">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium mb-1">Task Name*</label>
+          <input type="text" name="title" id="editTaskTitle" class="w-full px-3 py-2 border rounded-md" required>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1">Description</label>
+          <textarea name="description" id="editTaskDescription" class="w-full px-3 py-2 border rounded-md"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Due Date</label>
+            <input type="date" name="due_date" id="editTaskDueDate" class="w-full px-3 py-2 border rounded-md">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Priority</label>
+            <select name="priority" id="editTaskPriority" class="w-full px-3 py-2 border rounded-md">
+              <option value="1">High</option>
+              <option value="2" selected>Medium</option>
+              <option value="3">Low</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="mt-6 flex justify-between">
+        <button type="button" onclick="confirmDelete()" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-md">
+          <i class="fas fa-trash mr-1"></i> Delete
+        </button>
+        <div class="space-x-3">
+          <button type="button" onclick="hideEditModal()" class="px-4 py-2 border rounded-md">
+            Cancel
+          </button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// Edit task functionality
+function showEditModal(taskId, title, description, dueDate, priority) {
+  document.getElementById('editTaskId').value = taskId;
+  document.getElementById('editTaskTitle').value = title;
+  document.getElementById('editTaskDescription').value = description || '';
+  document.getElementById('editTaskDueDate').value = dueDate || '';
+  document.getElementById('editTaskPriority').value = priority || '2';
+  document.getElementById('editTaskModal').classList.remove('hidden');
+}
+
+function hideEditModal() {
+  document.getElementById('editTaskModal').classList.add('hidden');
+}
+
+function confirmDelete() {
+  if (confirm('Are you sure you want to delete this task?')) {
+    const taskId = document.getElementById('editTaskId').value;
+    fetch(`/tasks/personal/${taskId}/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => {
+      if (response.ok) {
+        window.location.reload();
+      }
+    });
+  }
+}
+
+// Form submission
+document.getElementById('editTaskForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+  const taskId = formData.get('task_id');
+  
+  fetch(`/tasks/personal/${taskId}/update`, {
+    method: 'POST',
+    body: formData,
+  }).then(response => {
+    if (response.ok) {
+      window.location.reload();
+    }
+  });
+});
+</script>
+
+
+<script>
+function showAddTaskModal() {
+  document.getElementById('addTaskModal').classList.remove('hidden');
+}
+
+function hideAddTaskModal() {
+  document.getElementById('addTaskModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+  const modal = document.getElementById('addTaskModal');
+  if (event.target === modal) {
+    hideAddTaskModal();
+  }
+}
+</script>
+{% endblock %}
