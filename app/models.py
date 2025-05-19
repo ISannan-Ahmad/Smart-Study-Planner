@@ -93,3 +93,10 @@ class PersonalTask(db.Model):
     updated_at: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.now, onupdate=datetime.now)
     
     user: Mapped["User"] = relationship("User", back_populates="personal_tasks")
+
+    # In your PersonalTask model
+    @property
+    def is_overdue(self):
+        if not self.due_date:
+            return False
+        return self.due_date < datetime.now().date() and not self.is_done

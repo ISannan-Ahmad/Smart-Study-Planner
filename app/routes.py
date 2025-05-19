@@ -205,7 +205,8 @@ def add_personal_task():
         title=request.form['title'],
         description=request.form['description'],
         due_date=due_date,
-        user_id=current_user.id
+        user_id=current_user.id,
+        priority=request.form['priority']
     )
     
     db.session.add(task)
@@ -274,6 +275,7 @@ def ai_dashboard():
         'total_ai_tasks': len(ai_tasks),
         'completed_ai_tasks': sum(1 for t in ai_tasks if t.is_done)
     }
+    print(ai_tasks)
 
     return render_template('ai_dashboard.html',
                          study_plans=current_user.study_plans,

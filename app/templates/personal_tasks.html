@@ -3,47 +3,110 @@
 {% block title %}Personal Tasks{% endblock %}
 
 {% block content %}
+
+<div class="max-w-4xl mx-auto px-6 pt-4">
+  <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-4">
+    <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+  </a>
+</div>
+
+
 <div class="max-w-4xl mx-auto p-6">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-2xl font-bold">My Personal Tasks</h1>
-    <button onclick="showAddTaskModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+  <!-- Header with Stats -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">My Personal Tasks</h1>
+      <p class="text-sm text-gray-500">
+        {% set completed = tasks|selectattr('is_done')|list|length %}
+        {{ completed }}/{{ tasks|length }} completed
+      </p>
+    </div>
+    <button onclick="showAddTaskModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
       <i class="fas fa-plus mr-1"></i> Add Task
     </button>
   </div>
 
-  <div class="bg-white rounded-lg shadow-sm p-6">
+  <!-- Tasks List -->
+  <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
     {% if tasks %}
-      <div class="space-y-3">
+      <div class="divide-y divide-gray-100">
         {% for task in tasks %}
-          <div class="p-4 border rounded-lg {% if task.is_done %}bg-gray-50{% endif %}">
-            <div class="flex items-start">
-              <form method="POST" action="{{ url_for('main.complete_personal_task', task_id=task.id) }}" class="mr-3">
-                <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %}">
-                  <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %}"></i>
+          <div class="task-item p-5 hover:bg-gray-50 transition-colors {% if task.is_done %}bg-green-50{% endif %}" 
+               data-id="{{ task.id }}"
+               data-completed="{{ 'true' if task.is_done else 'false' }}">
+            <div class="flex items-start gap-4">
+              <!-- Checkbox -->
+              <form method="POST" action="{{ url_for('main.complete_personal_task', task_id=task.id) }}" class="mt-1">
+                <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %} transition-colors">
+                  <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %} text-lg"></i>
                 </button>
               </form>
+              
+              <!-- Task Content -->
               <div class="flex-grow">
-                <h3 class="font-medium {% if task.is_done %}line-through text-gray-600{% endif %}">
-                  {{ task.title }}
-                </h3>
-                {% if task.description %}
-                <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %}">
-                  {{ task.description }}
-                </p>
-                {% endif %}
-                {% if task.due_date %}
-                <div class="mt-2 text-xs text-gray-500">
-                  <i class="far fa-calendar-alt mr-1"></i>
-                  Due: {{ task.due_date.strftime('%b %d, %Y') }}
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                  <div>
+                    <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %}">
+                      {{ task.title }}
+                    </h3>
+                    {% if task.description %}
+                    <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %}">
+                      {{ task.description }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <div class="flex items-center gap-2">
+                    {% if task.due_date %}
+                    <span class="text-xs px-2 py-1 rounded-full {% if task.is_overdue and not task.is_done %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                      <i class="far fa-calendar-alt mr-1"></i>
+                      {{ task.due_date.strftime('%b %d') }}
+                    </span>
+
+                    {% endif %}
+                    <span class="text-xs px-2 py-1 rounded-full 
+                      {% if task.priority == 1 %}bg-red-100 text-red-800
+                      {% elif task.priority == 2 %}bg-yellow-100 text-yellow-800
+                      {% else %}bg-gray-100 text-gray-800{% endif %}">
+                      {% if task.priority == 1 %}High
+                      {% elif task.priority == 2 %}Medium
+                      {% else %}Low{% endif %}
+                    </span>
+                  </div>
                 </div>
-                {% endif %}
+                
+                <!-- Task Actions -->
+                <div class="flex items-center mt-3 gap-3">
+                  <button
+                    class="text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                    data-id="{{ task.id }}"
+                    data-title="{{ task.title }}"
+                    data-description="{{ task.description }}"
+                    data-due-date="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}"
+                    data-priority="{{ task.priority }}"
+                    onclick="handleEditClick(this)">
+                    <i class="fas fa-pencil-alt mr-1"></i> Edit
+                  </button>
+
+
+                  <form method="POST" action="{{ url_for('main.delete_personal_task', task_id=task.id) }}" class="inline">
+                    <button type="submit" class="text-xs text-red-600 hover:text-red-800 flex items-center" onclick="return confirm('Are you sure you want to delete this task?')">
+                      <i class="fas fa-trash-alt mr-1"></i> Delete
+                    </button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
         {% endfor %}
       </div>
     {% else %}
-      <p class="text-gray-500">You haven't added any personal tasks yet.</p>
+      <div class="p-8 text-center">
+        <i class="fas fa-tasks text-4xl text-gray-300 mb-3"></i>
+        <p class="text-gray-500">You haven't added any personal tasks yet.</p>
+        <button onclick="showAddTaskModal()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+          <i class="fas fa-plus mr-1"></i> Create Your First Task
+        </button>
+      </div>
     {% endif %}
   </div>
 </div>
@@ -62,23 +125,33 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">Task Name*</label>
-          <input type="text" name="title" class="w-full px-3 py-2 border rounded-md" required>
+          <input type="text" name="title" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Description</label>
-          <textarea name="description" class="w-full px-3 py-2 border rounded-md"></textarea>
+          <textarea name="description" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
         </div>
-        <div>
-          <label class="block text-sm font-medium mb-1">Due Date</label>
-          <input type="date" name="due_date" class="w-full px-3 py-2 border rounded-md">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Due Date</label>
+            <input type="date" name="due_date" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">Priority</label>
+            <select name="priority" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+              <option value="1">High</option>
+              <option value="2" selected>Medium</option>
+              <option value="3">Low</option>
+            </select>
+          </div>
         </div>
       </div>
       
       <div class="mt-6 flex justify-end space-x-3">
-        <button type="button" onclick="hideAddTaskModal()" class="px-4 py-2 border rounded-md">
+        <button type="button" onclick="hideAddTaskModal()" class="px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors">
           Cancel
         </button>
-        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">
+        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
           Add Task
         </button>
       </div>
@@ -86,8 +159,7 @@
   </div>
 </div>
 
-
-<!-- Add this modal at the bottom of personal_tasks.html -->
+<!-- Edit Task Modal -->
 <div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
   <div class="bg-white rounded-xl p-6 w-full max-w-md">
     <div class="flex justify-between items-center mb-4">
@@ -102,22 +174,22 @@
       <div class="space-y-4">
         <div>
           <label class="block text-sm font-medium mb-1">Task Name*</label>
-          <input type="text" name="title" id="editTaskTitle" class="w-full px-3 py-2 border rounded-md" required>
+          <input type="text" name="title" id="editTaskTitle" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
         </div>
         <div>
           <label class="block text-sm font-medium mb-1">Description</label>
-          <textarea name="description" id="editTaskDescription" class="w-full px-3 py-2 border rounded-md"></textarea>
+          <textarea name="description" id="editTaskDescription" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"></textarea>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium mb-1">Due Date</label>
-            <input type="date" name="due_date" id="editTaskDueDate" class="w-full px-3 py-2 border rounded-md">
+            <input type="date" name="due_date" id="editTaskDueDate" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Priority</label>
-            <select name="priority" id="editTaskPriority" class="w-full px-3 py-2 border rounded-md">
+            <select name="priority" id="editTaskPriority" class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               <option value="1">High</option>
-              <option value="2" selected>Medium</option>
+              <option value="2">Medium</option>
               <option value="3">Low</option>
             </select>
           </div>
@@ -125,14 +197,14 @@
       </div>
       
       <div class="mt-6 flex justify-between">
-        <button type="button" onclick="confirmDelete()" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-md">
+        <button type="button" onclick="confirmDelete()" class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-md transition-colors">
           <i class="fas fa-trash mr-1"></i> Delete
         </button>
         <div class="space-x-3">
-          <button type="button" onclick="hideEditModal()" class="px-4 py-2 border rounded-md">
+          <button type="button" onclick="hideEditModal()" class="px-4 py-2 border rounded-md hover:bg-gray-50 transition-colors">
             Cancel
           </button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
             Save Changes
           </button>
         </div>
@@ -142,7 +214,15 @@
 </div>
 
 <script>
-// Edit task functionality
+// Modal functions
+function showAddTaskModal() {
+  document.getElementById('addTaskModal').classList.remove('hidden');
+}
+
+function hideAddTaskModal() {
+  document.getElementById('addTaskModal').classList.add('hidden');
+}
+
 function showEditModal(taskId, title, description, dueDate, priority) {
   document.getElementById('editTaskId').value = taskId;
   document.getElementById('editTaskTitle').value = title;
@@ -152,27 +232,32 @@ function showEditModal(taskId, title, description, dueDate, priority) {
   document.getElementById('editTaskModal').classList.remove('hidden');
 }
 
+function handleEditClick(button) {
+  const id = button.dataset.id;
+  const title = button.dataset.title;
+  const description = button.dataset.description;
+  const dueDate = button.dataset.dueDate;
+  const priority = button.dataset.priority;
+
+  showEditModal(id, title, description, dueDate, priority);
+}
+
+
 function hideEditModal() {
   document.getElementById('editTaskModal').classList.add('hidden');
 }
 
-function confirmDelete() {
-  if (confirm('Are you sure you want to delete this task?')) {
-    const taskId = document.getElementById('editTaskId').value;
-    fetch(`/tasks/personal/${taskId}/delete`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(response => {
-      if (response.ok) {
-        window.location.reload();
-      }
-    });
+// Close modals when clicking outside
+window.onclick = function(event) {
+  if (event.target === document.getElementById('addTaskModal')) {
+    hideAddTaskModal();
+  }
+  if (event.target === document.getElementById('editTaskModal')) {
+    hideEditModal();
   }
 }
 
-// Form submission
+// Form submission for edit
 document.getElementById('editTaskForm').addEventListener('submit', function(e) {
   e.preventDefault();
   const formData = new FormData(this);
@@ -187,23 +272,20 @@ document.getElementById('editTaskForm').addEventListener('submit', function(e) {
     }
   });
 });
-</script>
 
-
-<script>
-function showAddTaskModal() {
-  document.getElementById('addTaskModal').classList.remove('hidden');
-}
-
-function hideAddTaskModal() {
-  document.getElementById('addTaskModal').classList.add('hidden');
-}
-
-// Close modal when clicking outside
-window.onclick = function(event) {
-  const modal = document.getElementById('addTaskModal');
-  if (event.target === modal) {
-    hideAddTaskModal();
+function confirmDelete() {
+  if (confirm('Are you sure you want to delete this task?')) {
+    const taskId = document.getElementById('editTaskId').value;
+    fetch(`/tasks/personal/${taskId}/delete`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }).then(response => {
+      if (response.ok) {
+        window.location.reload();
+      }
+    });
   }
 }
 </script>
