@@ -21,6 +21,7 @@ def home():
 @main.route('/about')
 def about():
     return render_template('about.html')
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
@@ -95,7 +96,7 @@ def plan():
     if request.method == 'POST':
         start_time = request.form.get('daily_start_time')
         end_time = request.form.get('daily_end_time')
-
+        plan_name = request.form.get('plan_name')
         subjects = defaultdict(lambda: {"topics": {}})
 
         for key in request.form:
@@ -116,6 +117,7 @@ def plan():
 
         study_plan = StudyPlan(
             user_id=current_user.id,
+            name=plan_name,
             start_time=start_time,
             end_time=end_time
         )
@@ -166,25 +168,24 @@ def plan():
     return render_template('planform.html')
 
 
-@main.route('/task/<int:task_id>/complete', methods=['GET', 'POST'])
+@main.route('/complete_task/<int:task_id>', methods=['POST'])
 @login_required
 def complete_task(task_id):
     task = StudyTask.query.get_or_404(task_id)
-    task.is_done = not task.is_done
+    task.is_done = not task.is_done  # Toggle completion status
     db.session.commit()
-    return redirect(url_for('main.dashboard'))
+    
+    # Get the filter from the form submission
+    current_filter = request.form.get('current_plan_filter', 'all')
+    
+    # Redirect back with the filter preserved
+    return redirect(url_for('main.ai_dashboard', plan_filter=current_filter))
+
 
 @main.context_processor
 def inject_now():
     return {'now': datetime.now}
 
-
-@main.route('/tasks/ai')
-@login_required
-def ai_tasks():
-    study_plan = StudyPlan.query.filter_by(user_id=current_user.id).first_or_404()
-    ai_tasks = [task for task in study_plan.tasks if task.title.startswith(('Study ', 'Revise '))]
-    return render_template('ai_tasks.html', tasks=ai_tasks)
 
 @main.route('/tasks/personal')
 @login_required
@@ -193,6 +194,7 @@ def personal_tasks():
                                      .order_by(PersonalTask.due_date)\
                                      .all()
     return render_template('personal_tasks.html', tasks=personal_tasks)
+
 
 @main.route('/tasks/personal/add', methods=['POST'])
 @login_required
@@ -210,6 +212,7 @@ def add_personal_task():
     db.session.commit()
     flash('Personal task added successfully!', 'success')
     return redirect(url_for('main.personal_tasks'))
+
 
 @main.route('/tasks/personal/<int:task_id>/complete', methods=['POST'])
 @login_required
@@ -236,6 +239,7 @@ def update_personal_task(task_id):
     flash('Task updated successfully!', 'success')
     return redirect(url_for('main.personal_tasks'))
 
+
 @main.route('/tasks/personal/<int:task_id>/delete', methods=['POST'])
 @login_required
 def delete_personal_task(task_id):
@@ -245,22 +249,34 @@ def delete_personal_task(task_id):
     flash('Task deleted successfully!', 'success')
     return redirect(url_for('main.personal_tasks'))
 
-# AI Dashboard Route
-@main.route('/ai-dashboard')
+
+@main.route('/ai_dashboard')
 @login_required
 def ai_dashboard():
-    study_plans = StudyPlan.query.filter_by(user_id=current_user.id).all()
-    ai_tasks = StudyTask.query.join(StudyPlan).filter(
-        StudyPlan.user_id == current_user.id,
+    plan_filter = request.args.get('plan_filter', 'all')
+    
+    # Get plan IDs for current user first
+    plan_ids = [p.id for p in current_user.study_plans]
+    
+    # Get tasks for these plans
+    query = StudyTask.query.filter(
+        StudyTask.plan_id.in_(plan_ids),
         StudyTask.is_ai_generated == True
-    ).order_by(StudyTask.scheduled_date).all()
+    )
+    
+    # Apply plan filter if specified
+    if plan_filter != 'all':
+        query = query.filter(StudyTask.plan_id == int(plan_filter))
+    
+    ai_tasks = query.order_by(StudyTask.scheduled_date).all()
     
     stats = {
         'total_ai_tasks': len(ai_tasks),
-        'completed_ai_tasks': len([t for t in ai_tasks if t.is_done])
+        'completed_ai_tasks': sum(1 for t in ai_tasks if t.is_done)
     }
-    
+
     return render_template('ai_dashboard.html',
-                         study_plans=study_plans,
+                         study_plans=current_user.study_plans,
                          ai_tasks=ai_tasks,
-                         stats=stats)
+                         stats=stats,
+                         current_filter=plan_filter)

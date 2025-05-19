@@ -4,18 +4,6 @@ from flask_login import UserMixin
 from sqlalchemy.orm import Mapped, mapped_column, relationship, backref 
 from datetime import date, datetime
 
-
-# class User(UserMixin, db.Model):
-#     __tablename__ = 'users'
-    
-#     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-#     username: Mapped[str] = mapped_column(db.String(150), unique=True, nullable=False)
-#     email: Mapped[str] = mapped_column(db.String(150), unique=True, nullable=False)
-#     password: Mapped[str] = mapped_column(db.String(256), nullable=False)
-    
-#     study_plans: Mapped[list["StudyPlan"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-
-
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     
@@ -35,19 +23,6 @@ class User(UserMixin, db.Model):
         back_populates="user", 
         cascade="all, delete-orphan"
     )
-
-
-# class StudyPlan(db.Model):
-#     __tablename__ = 'study_plans'
-    
-#     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-#     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('users.id'))
-#     start_time: Mapped[str] = mapped_column(db.String(10))
-#     end_time: Mapped[str] = mapped_column(db.String(10))
-    
-#     user: Mapped["User"] = relationship(back_populates="study_plans")
-#     subjects: Mapped[list["Subject"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
-#     tasks: Mapped[list["StudyTask"]] = relationship(back_populates="plan", cascade="all, delete-orphan")
 
 
 class StudyPlan(db.Model):
@@ -77,6 +52,7 @@ class Subject(db.Model):
     plan: Mapped["StudyPlan"] = relationship(back_populates="subjects")
     topics: Mapped[list["Topic"]] = relationship(back_populates="subject", cascade="all, delete-orphan")
 
+
 class Topic(db.Model):
     __tablename__ = 'topics'
     
@@ -86,33 +62,6 @@ class Topic(db.Model):
     subject_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('subjects.id'))
     
     subject: Mapped["Subject"] = relationship(back_populates="topics")
-
-# class StudyTask(db.Model):
-#     __tablename__ = 'study_tasks'
-
-#     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-#     plan_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('study_plans.id'))
-#     title: Mapped[str] = mapped_column(db.String(120))
-#     description: Mapped[str] = mapped_column(db.String(300))
-#     is_done: Mapped[bool] = mapped_column(db.Boolean, default=False)
-#     duration_minutes: Mapped[int] = mapped_column(db.Integer)  # e.g., 120 = 2 hours
-#     scheduled_date: Mapped[date] = mapped_column(db.Date)  # <-- NEW FIELD
-
-#     plan: Mapped["StudyPlan"] = relationship(back_populates="tasks")
-
-
-# class PersonalTask(db.Model):
-#     __tablename__ = 'personal_tasks'
-    
-#     id: Mapped[int] = mapped_column(db.Integer, primary_key=True)
-#     user_id: Mapped[int] = mapped_column(db.Integer, db.ForeignKey('users.id'))
-#     title: Mapped[str] = mapped_column(db.String(120))
-#     description: Mapped[str] = mapped_column(db.String(300))
-#     is_done: Mapped[bool] = mapped_column(db.Boolean, default=False)
-#     due_date: Mapped[date] = mapped_column(db.Date)
-#     created_at: Mapped[datetime] = mapped_column(db.DateTime, default=datetime.now)
-    
-#     user: Mapped["User"] = relationship(backref=backref("personal_tasks", cascade="all, delete-orphan"))
 
 
 class StudyTask(db.Model):
@@ -126,7 +75,7 @@ class StudyTask(db.Model):
     duration_minutes: Mapped[int] = mapped_column(db.Integer)
     scheduled_date: Mapped[date] = mapped_column(db.Date)
     priority: Mapped[int] = mapped_column(db.Integer, default=2)  # 1=High, 2=Medium, 3=Low
-    is_ai_generated: Mapped[bool] = mapped_column(db.Boolean, default=False)
+    is_ai_generated: Mapped[bool] = mapped_column(db.Boolean, default=True)
     
     plan: Mapped["StudyPlan"] = relationship(back_populates="tasks")
 
