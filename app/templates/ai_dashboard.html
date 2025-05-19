@@ -3,115 +3,242 @@
 {% block title %}AI Tasks Dashboard{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<div class="container mx-auto px-4 py-8 max-w-6xl">
   <!-- Header with Back Button -->
-  <div class="flex items-center mb-6">
-    <a href="{{ url_for('main.dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors">
+  <div class="flex items-center mb-8">
+    <a href="{{ url_for('main.dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
       <i class="fas fa-arrow-left text-gray-600"></i>
     </a>
-    <h1 class="text-2xl font-bold text-gray-800">AI-Generated Tasks</h1>
-  </div>
-
-  <!-- Filter and Stats Section -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-    <!-- Plan Filter -->
-    <div class="w-full md:w-auto">
-      <div class="relative">
-        <select id="planFilter" class="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
-          <option value="all" {% if current_filter == 'all' %}selected{% endif %}>All Plans</option>
-          {% for plan in study_plans %}
-          <option value="{{ plan.id }}" {% if current_filter == plan.id|string %}selected{% endif %}>{{ plan.name }}</option>
-          {% endfor %}
-        </select>
-        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-          <i class="fas fa-chevron-down text-sm"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-3 gap-4 w-full md:w-auto">
-      <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
-        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Total Tasks</h3>
-        <p id="totalTasks" class="text-2xl font-bold mt-1">{{ stats.total_ai_tasks }}</p>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
-        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Completed</h3>
-        <p id="completedTasks" class="text-2xl font-bold mt-1">{{ stats.completed_ai_tasks }}</p>
-      </div>
-      <div class="bg-white rounded-lg shadow p-4 border border-gray-100">
-        <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wider">Completion</h3>
-        <p id="completionRate" class="text-2xl font-bold mt-1">
-          {{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}%
-        </p>
-      </div>
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800">AI Study Planner</h1>
+      <p class="text-gray-500 mt-1">Your personalized study tasks</p>
     </div>
   </div>
 
-  <!-- Tasks List -->
-  <div class="bg-white rounded-xl shadow overflow-hidden border border-gray-100">
-    <div class="divide-y divide-gray-100" id="tasksContainer">
-      {% for task in ai_tasks %}
-      <div class="task-item p-5 hover:bg-gray-50 transition-colors {% if task.is_done %}bg-green-50{% endif %}" 
-           data-plan-id="{{ task.plan_id }}">
-        <div class="flex items-start gap-4">
-          <!-- Checkbox -->
-          <form method="POST" action="{{ url_for('main.complete_task', task_id=task.id) }}" class="mt-1">
-            <input type="hidden" name="current_plan_filter" value="{{ current_filter }}">
-            <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %} transition-colors">
-              <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %} text-lg"></i>
-            </button>
-          </form>
+  <!-- Main Content Area -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Left Sidebar - Filters and Stats -->
+    <div class="lg:col-span-1 space-y-6">
+      <!-- Plan Filter Card -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-semibold text-lg text-gray-800 mb-4">Filter Tasks</h2>
+        
+        <div class="space-y-4">
+          <!-- Plan Selector -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Study Plan</label>
+            <select id="planFilter" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+              <option value="all" {% if current_filter == 'all' %}selected{% endif %}>All Plans</option>
+              {% for plan in study_plans %}
+              <option value="{{ plan.id }}" {% if current_filter == plan.id|string %}selected{% endif %}>{{ plan.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
           
-          <!-- Task Content -->
-          <div class="flex-grow">
-            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-              <div>
-                <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %}">
-                  {{ task.title }}
-                  <span class="text-xs ml-2 text-gray-500 hidden plan-name-display">
-                    ({{ task.plan.name }})
-                  </span>
-                </h3>
-                <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %}">
-                  {{ task.description }}
-                </p>
-              </div>
-              <span class="text-xs px-3 py-1 rounded-full whitespace-nowrap
-                {% if task.priority == 1 %}bg-red-100 text-red-800
-                {% elif task.priority == 2 %}bg-yellow-100 text-yellow-800
-                {% else %}bg-gray-100 text-gray-800{% endif %}">
-                {% if task.priority == 1 %}High
-                {% elif task.priority == 2 %}Medium
-                {% else %}Low{% endif %} priority
-              </span>
-            </div>
-            
-            <!-- Task Meta -->
-            <div class="flex flex-wrap items-center mt-3 text-xs text-gray-500 gap-x-4 gap-y-2">
-              <div class="flex items-center">
-                <i class="far fa-calendar-alt mr-2 text-gray-400"></i>
-                <span>{{ task.scheduled_date.strftime('%b %d, %Y') }}</span>
-              </div>
-              <div class="flex items-center">
-                <i class="fas fa-clock mr-2 text-gray-400"></i>
-                <span>{{ task.duration_minutes }} minutes</span>
-              </div>
+          <!-- Status Toggle -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Task Status</label>
+            <div class="flex rounded-md shadow-sm">
+              <button type="button" data-status="all" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm rounded-l-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-200">
+                All
+              </button>
+              <button type="button" data-status="active" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm border-t border-b border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                Active
+              </button>
+              <button type="button" data-status="completed" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm rounded-r-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                Completed
+              </button>
             </div>
           </div>
         </div>
       </div>
-      {% endfor %}
+      
+      <!-- Stats Card -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-semibold text-lg text-gray-800 mb-4">Progress Overview</h2>
+        
+        <div class="space-y-4">
+          <!-- Completion Progress -->
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Completion</span>
+              <span class="text-gray-500">{{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}%</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full" 
+                   style="width: {{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}%"></div>
+            </div>
+          </div>
+          
+          <!-- Stats Grid -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <p class="text-xs font-medium text-blue-800 uppercase tracking-wider">Total</p>
+              <p class="text-xl font-bold mt-1 text-blue-900">{{ stats.total_ai_tasks }}</p>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg">
+              <p class="text-xs font-medium text-green-800 uppercase tracking-wider">Completed</p>
+              <p class="text-xl font-bold mt-1 text-green-900">{{ stats.completed_ai_tasks }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Content - Tasks -->
+    <div class="lg:col-span-3">
+      <!-- Tasks Header -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold text-gray-800">Your Study Tasks</h2>
+        <div class="flex items-center space-x-2">
+          <button id="expandAll" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Expand All</button>
+          <span class="text-gray-300">|</span>
+          <button id="collapseAll" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Collapse All</button>
+        </div>
+      </div>
+      
+      <!-- Tasks Accordion -->
+      <div class="space-y-3" id="tasksAccordion">
+        {% set grouped_tasks = {} %}
+        {% for task in ai_tasks %}
+          {% set date_key = task.scheduled_date.strftime('%Y-%m-%d') %}
+          {% if date_key not in grouped_tasks %}
+            {% set _ = grouped_tasks.update({date_key: []}) %}
+          {% endif %}
+          {% set _ = grouped_tasks[date_key].append(task) %}
+        {% endfor %}
+        
+        {% for date, tasks in grouped_tasks|dictsort %}
+        <div class="task-group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-date="{{ date }}">
+          <button class="group-header w-full flex justify-between items-center p-5 hover:bg-gray-50 transition-colors duration-200">
+            <div class="flex items-center">
+              <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center mr-3">
+                <i class="far fa-calendar-alt text-sm"></i>
+              </div>
+              <h3 class="text-lg font-medium text-gray-800">
+                {{ tasks[0].scheduled_date.strftime('%A, %b %d') }}
+              </h3>
+            </div>
+            <div class="flex items-center">
+              <span class="text-sm text-gray-500 mr-3">
+                {{ tasks|length }} task{{ 's' if tasks|length > 1 else '' }}
+              </span>
+              <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+            </div>
+          </button>
+          
+          <div class="group-content hidden divide-y divide-gray-100">
+            {% for task in tasks %}
+            <div class="task-item p-5 hover:bg-gray-50 transition-colors duration-150 {% if task.is_done %}bg-green-50{% endif %}" 
+                 data-plan-id="{{ task.plan_id }}" 
+                 data-status="{% if task.is_done %}completed{% else %}active{% endif %}">
+              <div class="flex items-start gap-4">
+                <!-- Checkbox -->
+                <form method="POST" action="{{ url_for('main.complete_task', task_id=task.id) }}" class="mt-1">
+                  <input type="hidden" name="current_plan_filter" value="{{ current_filter }}">
+                  <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %} transition-colors duration-150">
+                    <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %} text-lg"></i>
+                  </button>
+                </form>
+                
+                <!-- Task Content -->
+                <div class="flex-grow">
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                    <div>
+                      <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %}">
+                        {{ task.title }}
+                      </h3>
+                      {% if current_filter == 'all' %}
+                      <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full mt-1 inline-block">
+                        {{ task.plan.name }}
+                      </span>
+                      {% endif %}
+                      <p class="text-sm text-gray-600 mt-2 {% if task.is_done %}opacity-75{% endif %}">
+                        {{ task.description }}
+                      </p>
+                    </div>
+                    <span class="text-xs px-2.5 py-1 rounded-full whitespace-nowrap
+                      {% if task.priority == 1 %}bg-red-100 text-red-800
+                      {% elif task.priority == 2 %}bg-yellow-100 text-yellow-800
+                      {% else %}bg-gray-100 text-gray-800{% endif %}">
+                      {% if task.priority == 1 %}High
+                      {% elif task.priority == 2 %}Medium
+                      {% else %}Low{% endif %} priority
+                    </span>
+                  </div>
+                  
+                  <!-- Task Meta -->
+                  <div class="flex flex-wrap items-center mt-3 text-xs text-gray-500 gap-x-4 gap-y-2">
+                    <div class="flex items-center">
+                      <i class="fas fa-clock mr-2 text-gray-400"></i>
+                      <span>{{ task.duration_minutes }} minutes</span>
+                    </div>
+                    <div class="flex items-center">
+                      <i class="fas fa-book mr-2 text-gray-400"></i>
+                      <span>{{ task.plan.name if current_filter == 'all' else 'This plan' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
     </div>
   </div>
 </div>
 
+<div id="statsData" 
+     data-total="{{ stats.total_ai_tasks }}"
+     data-completed="{{ stats.completed_ai_tasks }}"
+     data-rate="{{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}"
+     style="display:none;"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  const planFilter = document.getElementById('planFilter');
-  const taskItems = document.querySelectorAll('.task-item');
+  // Accordion functionality
+  const groupHeaders = document.querySelectorAll('.group-header');
+  const expandAllBtn = document.getElementById('expandAll');
+  const collapseAllBtn = document.getElementById('collapseAll');
   
-  // Store original stats
+  groupHeaders.forEach(header => {
+    header.addEventListener('click', function() {
+      const group = this.closest('.task-group');
+      const content = group.querySelector('.group-content');
+      const icon = this.querySelector('i');
+      
+      content.classList.toggle('hidden');
+      icon.classList.toggle('rotate-180');
+    });
+  });
+  
+  expandAllBtn.addEventListener('click', function() {
+    document.querySelectorAll('.group-content').forEach(content => {
+      content.classList.remove('hidden');
+    });
+    document.querySelectorAll('.group-header i').forEach(icon => {
+      icon.classList.add('rotate-180');
+    });
+  });
+  
+  collapseAllBtn.addEventListener('click', function() {
+    document.querySelectorAll('.group-content').forEach(content => {
+      content.classList.add('hidden');
+    });
+    document.querySelectorAll('.group-header i').forEach(icon => {
+      icon.classList.remove('rotate-180');
+    });
+  });
+  
+  // Filter functionality
+  const planFilter = document.getElementById('planFilter');
+  const statusToggles = document.querySelectorAll('.status-toggle');
+  const taskItems = document.querySelectorAll('.task-item');
+  const taskGroups = document.querySelectorAll('.task-group');
+  
+
   const statsData = document.getElementById('statsData');
   const originalStats = {
     total: parseInt(statsData.dataset.total),
@@ -119,77 +246,106 @@ document.addEventListener('DOMContentLoaded', function() {
     rate: parseFloat(statsData.dataset.rate)
   };
 
-  // Show plan names when filtered
-  function showPlanNames(show) {
-    document.querySelectorAll('.plan-name-display').forEach(el => {
-      el.classList.toggle('hidden', !show);
-    });
-  }
-
   // Update stats display
   function updateStats(total, completed) {
-    document.getElementById('totalTasks').textContent = total;
-    document.getElementById('completedTasks').textContent = completed;
     const rate = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
-    document.getElementById('completionRate').textContent = `${rate}%`;
+    
+    // Update progress bar
+    document.querySelector('.bg-blue-600').style.width = `${rate}%`;
+    
+    // Update numbers
+    document.querySelectorAll('.stats-total').forEach(el => {
+      el.textContent = total;
+    });
+    document.querySelectorAll('.stats-completed').forEach(el => {
+      el.textContent = completed;
+    });
+    document.querySelectorAll('.stats-rate').forEach(el => {
+      el.textContent = `${rate}%`;
+    });
   }
-
-  planFilter.addEventListener('change', function() {
-    const selectedPlanId = this.value;
+  
+  // Apply filters
+  function applyFilters() {
+    const selectedPlanId = planFilter.value;
+    const selectedStatus = document.querySelector('.status-toggle.active')?.dataset.status || 'all';
+    
     let visibleCount = 0;
     let completedCount = 0;
-
+    
     taskItems.forEach(item => {
-      const matchesFilter = selectedPlanId === 'all' || item.dataset.planId === selectedPlanId;
+      const matchesPlan = selectedPlanId === 'all' || item.dataset.planId === selectedPlanId;
+      const matchesStatus = selectedStatus === 'all' || item.dataset.status === selectedStatus;
+      const isVisible = matchesPlan && matchesStatus;
       
-      if (matchesFilter) {
-        item.style.display = 'block';
+      item.style.display = isVisible ? 'block' : 'none';
+      
+      if (isVisible) {
         visibleCount++;
-        if (item.classList.contains('bg-green-50')) {
+        if (item.dataset.status === 'completed') {
           completedCount++;
         }
-      } else {
-        item.style.display = 'none';
       }
     });
-
+    
     // Update stats
-    if (selectedPlanId === 'all') {
+    if (selectedPlanId === 'all' && selectedStatus === 'all') {
       updateStats(originalStats.total, originalStats.completed);
     } else {
       updateStats(visibleCount, completedCount);
     }
-
-    // Show plan names only when filtered
-    showPlanNames(selectedPlanId !== 'all');
     
-    // Update hidden inputs in forms
-    document.querySelectorAll('input[name="current_plan_filter"]').forEach(input => {
-      input.value = selectedPlanId;
+    // Show/hide empty groups
+    taskGroups.forEach(group => {
+      const hasVisibleTasks = Array.from(group.querySelectorAll('.task-item'))
+        .some(item => item.style.display !== 'none');
+      
+      group.style.display = hasVisibleTasks ? 'block' : 'none';
+    });
+  }
+  
+  // Plan filter change
+  planFilter.addEventListener('change', applyFilters);
+  
+  // Status toggle
+  statusToggles.forEach(toggle => {
+    toggle.addEventListener('click', function() {
+      statusToggles.forEach(t => t.classList.remove('active', 'bg-blue-100', 'text-blue-800'));
+      this.classList.add('active', 'bg-blue-100', 'text-blue-800');
+      applyFilters();
     });
   });
   
-  // Initialize
-  showPlanNames(planFilter.value !== 'all');
+  // Initialize with "All" status active
+  document.querySelector('[data-status="all"]').classList.add('active', 'bg-blue-100', 'text-blue-800');
 });
 </script>
 
 <style>
+.task-group {
+  transition: all 0.3s ease;
+}
+.group-content {
+  transition: max-height 0.3s ease;
+}
+.rotate-180 {
+  transform: rotate(180deg);
+}
+.status-toggle.active {
+  z-index: 10;
+}
 .task-item {
   transition: all 0.2s ease;
 }
-.hidden {
-  display: none;
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
 }
-.plan-name-display {
-  display: inline;
-}
-</style>
 
-<!-- Hidden element for storing original stats -->
-<div id="statsData" 
-     data-total="{{ stats.total_ai_tasks }}"
-     data-completed="{{ stats.completed_ai_tasks }}"
-     data-rate="{{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}"
-     style="display:none;"></div>
+.status-toggle:focus {
+  background-color: #0e5ad3; /* Example blue color */
+  color: white;
+  outline: none; /* Optional: remove the default focus outline */
+}
+
+</style>
 {% endblock %}

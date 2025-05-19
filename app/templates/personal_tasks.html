@@ -1,119 +1,238 @@
 {% extends "base.html" %}
 
-{% block title %}Personal Tasks{% endblock %}
+{% block title %}Personal Tasks Dashboard{% endblock %}
 
 {% block content %}
-
-<div class="max-w-4xl mx-auto px-6 pt-4">
-  <a href="{{ url_for('main.dashboard') }}" class="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium mb-4">
-    <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
-  </a>
-</div>
-
-
-<div class="max-w-4xl mx-auto p-6">
-  <!-- Header with Stats -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+  <!-- Header with Back Button -->
+  <div class="flex items-center mb-8">
+    <a href="{{ url_for('main.dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
+      <i class="fas fa-arrow-left text-gray-600"></i>
+    </a>
     <div>
-      <h1 class="text-2xl font-bold text-gray-800">My Personal Tasks</h1>
-      <p class="text-sm text-gray-500">
-        {% set completed = tasks|selectattr('is_done')|list|length %}
-        {{ completed }}/{{ tasks|length }} completed
-      </p>
+      <h1 class="text-3xl font-bold text-gray-800">Personal Tasks</h1>
+      <p class="text-gray-500 mt-1">Manage your personal to-dos and reminders</p>
     </div>
-    <button onclick="showAddTaskModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-      <i class="fas fa-plus mr-1"></i> Add Task
-    </button>
   </div>
 
-  <!-- Tasks List -->
-  <div class="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
-    {% if tasks %}
-      <div class="divide-y divide-gray-100">
-        {% for task in tasks %}
-          <div class="task-item p-5 hover:bg-gray-50 transition-colors {% if task.is_done %}bg-green-50{% endif %}" 
+  <!-- Main Content Area -->
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- Left Sidebar - Filters and Stats -->
+    <div class="lg:col-span-1 space-y-6">
+      <!-- Stats Card -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-semibold text-lg text-gray-800 mb-4">Task Overview</h2>
+        
+        <div class="space-y-4">
+          <!-- Completion Progress -->
+          <div>
+            <div class="flex justify-between text-sm mb-1">
+              <span class="font-medium text-gray-700">Completion</span>
+              <span class="text-gray-500">
+                {% set completed = tasks|selectattr('is_done')|list|length %}
+                {{ ((completed / tasks|length * 100) if tasks|length > 0 else 0)|round(1) }}%
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div class="bg-blue-600 h-2 rounded-full" 
+                  style="width: {{ completion_percentage }}%"></div>
+            </div>
+            <p class="text-sm text-gray-500">
+              {{ completed_count }}/{{ tasks|length }} completed ({{ completion_percentage }}%)
+            </p>
+          </div>
+          
+          <!-- Stats Grid -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="bg-blue-50 p-3 rounded-lg">
+              <p class="text-xs font-medium text-blue-800 uppercase tracking-wider">Total</p>
+              <p class="text-xl font-bold mt-1 text-blue-900">{{ tasks|length }}</p>
+            </div>
+            <div class="bg-green-50 p-3 rounded-lg">
+              <p class="text-xs font-medium text-green-800 uppercase tracking-wider">Completed</p>
+              <p class="text-xl font-bold mt-1 text-green-900">{{ completed }}</p>
+            </div>
+            <div class="bg-yellow-50 p-3 rounded-lg">
+              <p class="text-xs font-medium text-yellow-800 uppercase tracking-wider">Pending</p>
+              <p class="text-xl font-bold mt-1 text-yellow-900">{{ tasks|length - completed }}</p>
+            </div>
+            <div class="bg-red-50 p-3 rounded-lg">
+              <p class="text-xs font-medium text-red-800 uppercase tracking-wider">Overdue</p>
+              <p class="text-xl font-bold mt-1 text-red-900">
+                {{ tasks|rejectattr('is_done')|selectattr('is_overdue')|list|length }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter Card -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-semibold text-lg text-gray-800 mb-4">Filter Tasks</h2>
+        
+        <div class="space-y-4">
+          <!-- Status Toggle -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <div class="flex rounded-md shadow-sm">
+              <button type="button" data-status="all" class="status-toggle flex-1 py-2 px-3 text-sm rounded-l-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 active">
+                All
+              </button>
+              <button type="button" data-status="active" class="status-toggle flex-1 py-2 px-3 text-sm border-t border-b border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                Active
+              </button>
+              <button type="button" data-status="completed" class="status-toggle flex-1 py-2 px-3 text-sm rounded-r-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+                Completed
+              </button>
+            </div>
+          </div>
+          
+          <!-- Priority Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+            <select id="priorityFilter" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+              <option value="all">All Priorities</option>
+              <option value="1">High Priority</option>
+              <option value="2">Medium Priority</option>
+              <option value="3">Low Priority</option>
+            </select>
+          </div>
+          
+          <!-- Due Date Filter -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+            <select id="dueDateFilter" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="overdue">Overdue</option>
+              <option value="future">Future</option>
+              <option value="no_date">No Due Date</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Add Task Button -->
+      <button onclick="showAddTaskModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+        <i class="fas fa-plus mr-1"></i> Add Task
+      </button>
+    </div>
+    
+    <!-- Right Content - Tasks -->
+    <div class="lg:col-span-3">
+      <!-- Tasks Header with Sorting -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h2 class="text-xl font-semibold text-gray-800">
+          <span id="filterIndicator">All Tasks</span>
+          <span class="text-sm font-normal text-gray-500 ml-2" id="taskCount">{{ tasks|length }} tasks</span>
+        </h2>
+        
+        <div class="flex items-center space-x-2">
+          <label class="text-sm text-gray-600">Sort by:</label>
+          <select id="sortTasks" class="text-sm rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500">
+            <option value="due_date_asc">Due Date (Oldest First)</option>
+            <option value="due_date_desc">Due Date (Newest First)</option>
+            <option value="priority_asc">Priority (High to Low)</option>
+            <option value="priority_desc">Priority (Low to High)</option>
+            <option value="created_desc">Recently Added</option>
+            <option value="created_asc">Oldest Added</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Tasks List -->
+      <div id="tasksContainer" class="space-y-3">
+        {% if tasks %}
+          {% for task in tasks %}
+          <div class="task-item bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 {% if task.is_done %}bg-green-50{% endif %}" 
                data-id="{{ task.id }}"
-               data-completed="{{ 'true' if task.is_done else 'false' }}">
-            <div class="flex items-start gap-4">
-              <!-- Checkbox -->
-              <form method="POST" action="{{ url_for('main.complete_personal_task', task_id=task.id) }}" class="mt-1">
-                <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %} transition-colors">
-                  <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %} text-lg"></i>
-                </button>
-              </form>
-              
-              <!-- Task Content -->
-              <div class="flex-grow">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
-                  <div>
-                    <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %}">
-                      {{ task.title }}
-                    </h3>
-                    {% if task.description %}
-                    <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %}">
-                      {{ task.description }}
-                    </p>
-                    {% endif %}
-                  </div>
-                  <div class="flex items-center gap-2">
-                    {% if task.due_date %}
-                    <span class="text-xs px-2 py-1 rounded-full {% if task.is_overdue and not task.is_done %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
-                      <i class="far fa-calendar-alt mr-1"></i>
-                      {{ task.due_date.strftime('%b %d') }}
-                    </span>
-
-                    {% endif %}
-                    <span class="text-xs px-2 py-1 rounded-full 
-                      {% if task.priority == 1 %}bg-red-100 text-red-800
-                      {% elif task.priority == 2 %}bg-yellow-100 text-yellow-800
-                      {% else %}bg-gray-100 text-gray-800{% endif %}">
-                      {% if task.priority == 1 %}High
-                      {% elif task.priority == 2 %}Medium
-                      {% else %}Low{% endif %}
-                    </span>
-                  </div>
-                </div>
-                
-                <!-- Task Actions -->
-                <div class="flex items-center mt-3 gap-3">
-                  <button
-                    class="text-xs text-blue-600 hover:text-blue-800 flex items-center"
-                    data-id="{{ task.id }}"
-                    data-title="{{ task.title }}"
-                    data-description="{{ task.description }}"
-                    data-due-date="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}"
-                    data-priority="{{ task.priority }}"
-                    onclick="handleEditClick(this)">
-                    <i class="fas fa-pencil-alt mr-1"></i> Edit
+               data-status="{% if task.is_done %}completed{% else %}active{% endif %}"
+               data-priority="{{ task.priority }}"
+               data-due-date="{% if task.due_date %}{{ task.due_date.strftime('%Y-%m-%d') }}{% else %}no_date{% endif %}"
+               data-overdue="{{ 'true' if task.is_overdue else 'false' }}">
+            <div class="p-5">
+              <div class="flex items-start gap-4">
+                <!-- Checkbox -->
+                <form method="POST" action="{{ url_for('main.complete_personal_task', task_id=task.id) }}" class="mt-1">
+                  <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %} transition-colors duration-150">
+                    <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %} text-lg"></i>
                   </button>
-
-
-                  <form method="POST" action="{{ url_for('main.delete_personal_task', task_id=task.id) }}" class="inline">
-                    <button type="submit" class="text-xs text-red-600 hover:text-red-800 flex items-center" onclick="return confirm('Are you sure you want to delete this task?')">
-                      <i class="fas fa-trash-alt mr-1"></i> Delete
+                </form>
+                
+                <!-- Task Content -->
+                <div class="flex-grow">
+                  <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                    <div>
+                      <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %}">
+                        {{ task.title }}
+                      </h3>
+                      {% if task.description %}
+                      <p class="text-sm text-gray-600 mt-1 {% if task.is_done %}opacity-75{% endif %}">
+                        {{ task.description }}
+                      </p>
+                      {% endif %}
+                    </div>
+                    <div class="flex items-center gap-2">
+                      {% if task.due_date %}
+                      <span class="text-xs px-2.5 py-1 rounded-full whitespace-nowrap {% if task.is_overdue and not task.is_done %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %}">
+                        <i class="far fa-calendar-alt mr-1"></i>
+                        {{ task.due_date.strftime('%b %d') }}
+                        {% if task.is_overdue and not task.is_done %}<i class="fas fa-exclamation ml-1"></i>{% endif %}
+                      </span>
+                      {% endif %}
+                      <span class="text-xs px-2.5 py-1 rounded-full whitespace-nowrap
+                        {% if task.priority == 1 %}bg-red-100 text-red-800
+                        {% elif task.priority == 2 %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {% if task.priority == 1 %}High
+                        {% elif task.priority == 2 %}Medium
+                        {% else %}Low{% endif %} priority
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <!-- Task Actions -->
+                  <div class="flex items-center mt-3 gap-3">
+                    <button
+                      class="text-xs text-blue-600 hover:text-blue-800 flex items-center"
+                      data-id="{{ task.id }}"
+                      data-title="{{ task.title }}"
+                      data-description="{{ task.description }}"
+                      data-due-date="{{ task.due_date.strftime('%Y-%m-%d') if task.due_date else '' }}"
+                      data-priority="{{ task.priority }}"
+                      onclick="handleEditClick(this)">
+                      <i class="fas fa-pencil-alt mr-1"></i> Edit
                     </button>
-                  </form>
+
+                    <form method="POST" action="{{ url_for('main.delete_personal_task', task_id=task.id) }}" class="inline">
+                      <button type="submit" class="text-xs text-red-600 hover:text-red-800 flex items-center" onclick="return confirm('Are you sure you want to delete this task?')">
+                        <i class="fas fa-trash-alt mr-1"></i> Delete
+                      </button>
+                    </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        {% endfor %}
+          {% endfor %}
+        {% else %}
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
+            <i class="fas fa-tasks text-4xl text-gray-300 mb-3"></i>
+            <p class="text-gray-500">You haven't added any personal tasks yet.</p>
+            <button onclick="showAddTaskModal()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+              <i class="fas fa-plus mr-1"></i> Create Your First Task
+            </button>
+          </div>
+        {% endif %}
       </div>
-    {% else %}
-      <div class="p-8 text-center">
-        <i class="fas fa-tasks text-4xl text-gray-300 mb-3"></i>
-        <p class="text-gray-500">You haven't added any personal tasks yet.</p>
-        <button onclick="showAddTaskModal()" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          <i class="fas fa-plus mr-1"></i> Create Your First Task
-        </button>
-      </div>
-    {% endif %}
+    </div>
   </div>
 </div>
 
-<!-- Add Task Modal -->
+<!-- Add Task Modal (same as before) -->
 <div id="addTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-  <div class="bg-white rounded-xl p-6 w-full max-w-md">
+   <div class="bg-white rounded-xl p-6 w-full max-w-md">
     <div class="flex justify-between items-center mb-4">
       <h3 class="text-lg font-bold">Add Personal Task</h3>
       <button onclick="hideAddTaskModal()" class="text-gray-500 hover:text-gray-700">
@@ -159,7 +278,7 @@
   </div>
 </div>
 
-<!-- Edit Task Modal -->
+<!-- Edit Task Modal (same as before) -->
 <div id="editTaskModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
   <div class="bg-white rounded-xl p-6 w-full max-w-md">
     <div class="flex justify-between items-center mb-4">
@@ -214,79 +333,244 @@
 </div>
 
 <script>
-// Modal functions
-function showAddTaskModal() {
-  document.getElementById('addTaskModal').classList.remove('hidden');
-}
-
-function hideAddTaskModal() {
-  document.getElementById('addTaskModal').classList.add('hidden');
-}
-
-function showEditModal(taskId, title, description, dueDate, priority) {
-  document.getElementById('editTaskId').value = taskId;
-  document.getElementById('editTaskTitle').value = title;
-  document.getElementById('editTaskDescription').value = description || '';
-  document.getElementById('editTaskDueDate').value = dueDate || '';
-  document.getElementById('editTaskPriority').value = priority || '2';
-  document.getElementById('editTaskModal').classList.remove('hidden');
-}
-
-function handleEditClick(button) {
-  const id = button.dataset.id;
-  const title = button.dataset.title;
-  const description = button.dataset.description;
-  const dueDate = button.dataset.dueDate;
-  const priority = button.dataset.priority;
-
-  showEditModal(id, title, description, dueDate, priority);
-}
 
 
-function hideEditModal() {
-  document.getElementById('editTaskModal').classList.add('hidden');
-}
+  window.showAddTaskModal = function() {
+    document.getElementById('addTaskModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  };
 
-// Close modals when clicking outside
-window.onclick = function(event) {
-  if (event.target === document.getElementById('addTaskModal')) {
-    hideAddTaskModal();
-  }
-  if (event.target === document.getElementById('editTaskModal')) {
-    hideEditModal();
-  }
-}
+  window.hideAddTaskModal = function() {
+    document.getElementById('addTaskModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  };
 
-// Form submission for edit
-document.getElementById('editTaskForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const formData = new FormData(this);
-  const taskId = formData.get('task_id');
-  
-  fetch(`/tasks/personal/${taskId}/update`, {
-    method: 'POST',
-    body: formData,
-  }).then(response => {
-    if (response.ok) {
-      window.location.reload();
+  window.showEditModal = function(taskId, title, description, dueDate, priority) {
+    document.getElementById('editTaskId').value = taskId;
+    document.getElementById('editTaskTitle').value = title;
+    document.getElementById('editTaskDescription').value = description || '';
+    document.getElementById('editTaskDueDate').value = dueDate || '';
+    document.getElementById('editTaskPriority').value = priority || '2';
+    document.getElementById('editTaskModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.hideEditModal = function() {
+    document.getElementById('editTaskModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  };
+
+  window.handleEditClick = function(button) {
+    const taskId = button.dataset.id;
+    const title = button.dataset.title;
+    const description = button.dataset.description;
+    const dueDate = button.dataset.dueDate;
+    const priority = button.dataset.priority;
+    showEditModal(taskId, title, description, dueDate, priority);
+  };
+
+  window.confirmDelete = function() {
+    if (confirm('Are you sure you want to delete this task?')) {
+      const taskId = document.getElementById('editTaskId').value;
+      fetch(`/tasks/personal/${taskId}/delete`, {
+        method: 'POST'
+      }).then(response => {
+        if (response.ok) window.location.reload();
+      });
     }
-  });
-});
+  };
 
-function confirmDelete() {
-  if (confirm('Are you sure you want to delete this task?')) {
-    const taskId = document.getElementById('editTaskId').value;
-    fetch(`/tasks/personal/${taskId}/delete`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    }).then(response => {
-      if (response.ok) {
-        window.location.reload();
+
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Modal functions (same as before)
+    
+    document.getElementById('editTaskForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const taskId = formData.get('task_id');
+      
+      fetch(`/tasks/personal/${taskId}/update`, {
+        method: 'POST',
+        body: formData,
+      }).then(response => {
+        if (response.ok) {
+          window.location.reload();
+        }
+      });
+    });
+
+    // Close Edit Modal when clicking outside
+    document.addEventListener('click', function(event) {
+      if (event.target === document.getElementById('editTaskModal')) {
+        hideEditModal();
       }
     });
-  }
-}
+
+    // Filter and Sort functionality
+    const statusToggles = document.querySelectorAll('.status-toggle');
+    const priorityFilter = document.getElementById('priorityFilter');
+    const dueDateFilter = document.getElementById('dueDateFilter');
+    const sortSelect = document.getElementById('sortTasks');
+    const taskItems = document.querySelectorAll('.task-item');
+    const taskCount = document.getElementById('taskCount');
+    const filterIndicator = document.getElementById('filterIndicator');
+
+    // Apply filters
+    function applyFilters() {
+      const selectedStatus = document.querySelector('.status-toggle.active')?.dataset.status || 'all';
+      const selectedPriority = priorityFilter.value;
+      const selectedDueDate = dueDateFilter.value;
+      
+      let visibleCount = 0;
+      let activeCount = 0;
+      let completedCount = 0;
+      
+      taskItems.forEach(item => {
+        const matchesStatus = selectedStatus === 'all' || item.dataset.status === selectedStatus;
+        const matchesPriority = selectedPriority === 'all' || item.dataset.priority === selectedPriority;
+        const matchesDueDate = checkDueDateFilter(item, selectedDueDate);
+        
+        const isVisible = matchesStatus && matchesPriority && matchesDueDate;
+        item.style.display = isVisible ? 'block' : 'none';
+        
+        if (isVisible) {
+          visibleCount++;
+          if (item.dataset.status === 'completed') {
+            completedCount++;
+          } else {
+            activeCount++;
+          }
+        }
+      });
+      
+      // Update counts
+      taskCount.textContent = `${visibleCount} task${visibleCount !== 1 ? 's' : ''}`;
+      
+      // Update filter indicator
+      updateFilterIndicator(selectedStatus, selectedPriority, selectedDueDate);
+    }
+    
+    // Check due date filter
+    function checkDueDateFilter(item, filterValue) {
+      if (filterValue === 'all') return true;
+      
+      const dueDate = item.dataset.dueDate;
+      const isOverdue = item.dataset.overdue === 'true';
+      
+      if (filterValue === 'no_date') return dueDate === 'no_date';
+      if (dueDate === 'no_date') return false;
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const taskDate = new Date(dueDate);
+      
+      if (filterValue === 'today') {
+        return taskDate.getTime() === today.getTime();
+      }
+      
+      if (filterValue === 'overdue') {
+        return isOverdue;
+      }
+      
+      if (filterValue === 'future') {
+        return taskDate > today && !isOverdue;
+      }
+      
+      if (filterValue === 'week') {
+        const endOfWeek = new Date(today);
+        endOfWeek.setDate(today.getDate() + 6);
+        return taskDate >= today && taskDate <= endOfWeek;
+      }
+      
+      return true;
+    }
+    
+    // Update filter indicator text
+    function updateFilterIndicator(status, priority, dueDate) {
+      let indicator = [];
+      
+      if (status !== 'all') {
+        indicator.push(status === 'active' ? 'Active' : 'Completed');
+      }
+      
+      if (priority !== 'all') {
+        indicator.push(`${['High', 'Medium', 'Low'][parseInt(priority) - 1]} Priority`);
+      }
+      
+      if (dueDate !== 'all') {
+        const dueDateTexts = {
+          'today': 'Due Today',
+          'week': 'Due This Week',
+          'overdue': 'Overdue',
+          'future': 'Future Due',
+          'no_date': 'No Due Date'
+        };
+        indicator.push(dueDateTexts[dueDate]);
+      }
+      
+      filterIndicator.textContent = indicator.length > 0 ? indicator.join(' • ') : 'All Tasks';
+    }
+    
+    // Sort tasks
+    function sortTasks() {
+      const sortValue = sortSelect.value;
+      const container = document.getElementById('tasksContainer');
+      const items = Array.from(document.querySelectorAll('.task-item'));
+      
+      items.sort((a, b) => {
+        // Sort by due date
+        if (sortValue.includes('due_date')) {
+          const dateA = a.dataset.dueDate === 'no_date' ? '9999-99-99' : a.dataset.dueDate;
+          const dateB = b.dataset.dueDate === 'no_date' ? '9999-99-99' : b.dataset.dueDate;
+          return sortValue === 'due_date_asc' ? dateA.localeCompare(dateB) : dateB.localeCompare(dateA);
+        }
+        
+        // Sort by priority
+        if (sortValue.includes('priority')) {
+          return sortValue === 'priority_asc' ? 
+            parseInt(a.dataset.priority) - parseInt(b.dataset.priority) :
+            parseInt(b.dataset.priority) - parseInt(a.dataset.priority);
+        }
+        
+        // Sort by creation (not implemented in this example)
+        return 0;
+      });
+      
+      // Re-append sorted items
+      items.forEach(item => container.appendChild(item));
+    }
+    
+    // Event listeners
+    statusToggles.forEach(toggle => {
+      toggle.addEventListener('click', function() {
+        statusToggles.forEach(t => t.classList.remove('active', 'bg-blue-100', 'text-blue-800'));
+        this.classList.add('active', 'bg-blue-100', 'text-blue-800');
+        applyFilters();
+      });
+    });
+    
+    priorityFilter.addEventListener('change', applyFilters);
+    dueDateFilter.addEventListener('change', applyFilters);
+    sortSelect.addEventListener('change', sortTasks);
+    
+    // Initialize
+    document.querySelector('[data-status="all"]').classList.add('active', 'bg-blue-100', 'text-blue-800');
+  });
 </script>
+
+<style>
+.task-item {
+  transition: all 0.2s ease;
+}
+.status-toggle.active {
+  z-index: 10;
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #93c5fd !important;
+}
+.hover\:bg-gray-50:hover {
+  background-color: #f9fafb;
+}
+</style>
 {% endblock %}

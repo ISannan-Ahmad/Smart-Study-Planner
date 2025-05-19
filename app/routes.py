@@ -193,7 +193,15 @@ def personal_tasks():
     personal_tasks = PersonalTask.query.filter_by(user_id=current_user.id)\
                                      .order_by(PersonalTask.due_date)\
                                      .all()
-    return render_template('personal_tasks.html', tasks=personal_tasks)
+    
+    # Calculate completion percentage
+    completed_count = sum(1 for task in personal_tasks if task.is_done)
+    completion_percentage = round(completed_count / len(personal_tasks) * 100, 1) if personal_tasks else 0
+    
+    return render_template('personal_tasks.html', 
+                         tasks=personal_tasks, 
+                         completion_percentage=completion_percentage,
+                         completed_count=completed_count)
 
 
 @main.route('/tasks/personal/add', methods=['POST'])
