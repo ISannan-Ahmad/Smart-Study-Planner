@@ -22,22 +22,20 @@ def home():
 def about():
     return render_template('about.html')
 
+
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    # Get all study plans
-    study_plans = StudyPlan.query.filter_by(user_id=current_user.id)\
-                               .order_by(StudyPlan.updated_at.desc())\
-                               .all()
-    
-    # Get all tasks across all plans
-    all_tasks = StudyTask.query.join(StudyPlan)\
-                             .filter(StudyPlan.user_id == current_user.id)\
-                             .all()
+    now = datetime.now()
+    plan_id = request.args.get('plan_id', type=int)
+
+    study_plans = StudyPlan.query.filter_by(user_id=current_user.id).order_by(StudyPlan.updated_at.desc()).all()
+    active_plan = next((p for p in study_plans if p.id == plan_id), study_plans[0] if study_plans else None)
+
+    all_tasks = StudyTask.query.join(StudyPlan).filter(StudyPlan.user_id == current_user.id).all()
     ai_tasks = [t for t in all_tasks if t.is_ai_generated]
     personal_tasks = PersonalTask.query.filter_by(user_id=current_user.id).all()
-    
-    # Calculate stats
+
     stats = {
         'total_plans': len(study_plans),
         'total_tasks': len(all_tasks) + len(personal_tasks),
@@ -50,28 +48,43 @@ def dashboard():
             len([t for t in all_tasks if t.is_done]) / len(all_tasks) * 100 if all_tasks else 0,
             1
         ),
-        'active_plan_name': study_plans[0].name if study_plans else "No active plan"
+        'active_plan_name': active_plan.name if active_plan else "No active plan"
     }
-    
-    # Get active plan (most recently updated)
-    active_plan = study_plans[0] if study_plans else None
-    
-    # Ensure subjects and subject_hours are always defined
-    subjects = study_plans[0].subjects if study_plans else []
+
+    subjects = active_plan.subjects if active_plan else []
     subject_hours = []
-    
+
     for subject in subjects:
         subject_tasks = [t for t in all_tasks if t.title.startswith(subject.name)]
         total_hours = sum(t.duration_minutes for t in subject_tasks) / 60
         subject_hours.append(round(total_hours, 2))
+
+    # (Optional) calculate upcoming_deadlines and pass it too
+    upcoming_deadlines = []
+    if study_plans:
+        for subject in study_plans.subjects:
+            days_left = (subject.exam_date - now.date()).days
+            if days_left >= 0:  # Only include future deadlines
+                upcoming_deadlines.append({
+                    'subject': subject,
+                    'days_left': days_left
+                })
     
+    # Sort by days left (nearest first)
+    upcoming_deadlines.sort(key=lambda x: x['days_left'])
+
+
     return render_template('dashboard.html',
-                         study_plans=study_plans,
-                         study_plan=study_plans[0] if study_plans else None,
-                         subjects=subjects,
-                         subject_hours=subject_hours,
-                         stats=stats,
-                         now=datetime.now())
+                           study_plans=study_plans,
+                           study_plan=active_plan,
+                           subjects=subjects,
+                           subject_hours=subject_hours,
+                           stats=stats,
+                           all_tasks=all_tasks,  # important for subject progress bars
+                           now=datetime.now(),
+                           upcoming_deadlines=upcoming_deadlines
+                        )
+
 
 
 def parse_duration_to_minutes(duration_str):
