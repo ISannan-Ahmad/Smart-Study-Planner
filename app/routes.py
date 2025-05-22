@@ -8,6 +8,7 @@ from collections import defaultdict
 import re
 from app.ai import generate_study_tasks
 from collections import defaultdict
+from app.views.simple_views import *
 
 
 main = Blueprint('main', __name__)
@@ -60,19 +61,9 @@ def dashboard():
         subject_hours.append(round(total_hours, 2))
 
     # (Optional) calculate upcoming_deadlines and pass it too
-    upcoming_deadlines = []
-    if active_plan:
-        for subject in active_plan.subjects:
-            days_left = (subject.exam_date - datetime.now().date()).days
-            if days_left >= 0:
-                upcoming_deadlines.append({
-                    'subject': subject,
-                    'days_left': days_left
-                })
+    upcoming_deadlines = get_upcoming_exams(current_user.id)
+   
 
-    
-    # Sort by days left (nearest first)
-    upcoming_deadlines.sort(key=lambda x: x['days_left'])
 
 
     return render_template('dashboard.html',
@@ -304,3 +295,45 @@ def ai_dashboard():
                          ai_tasks=ai_tasks,
                          stats=stats,
                          current_filter=plan_filter)
+
+
+
+
+
+# Simple Views
+
+
+@main.route('/progress')
+@login_required
+def progress():
+    progress_data = get_user_study_progress(current_user.id)
+    return render_template('progress.html', progress=progress_data)
+
+@main.route('/upcoming-exams')
+@login_required
+def upcoming_exams():
+    exams = get_upcoming_exams(current_user.id)
+    return render_template('upcoming_exams.html', exams=exams)
+
+@main.route('/task-timeline')
+@login_required
+def task_timeline():
+    timeline = get_task_timeline(current_user.id)
+    return render_template('task_timeline.html', timeline=timeline)
+
+@main.route('/subject-difficulty')
+@login_required
+def subject_difficulty():
+    difficulty_data = get_subject_difficulty(current_user.id)
+    return render_template('subject_difficulty.html', difficulty_data=difficulty_data)
+
+@main.route('/overdue-tasks')
+@login_required
+def overdue_tasks():
+    tasks = get_overdue_tasks(current_user.id)
+    return render_template('overdue_tasks.html', tasks=tasks)
+
+
+
+
+

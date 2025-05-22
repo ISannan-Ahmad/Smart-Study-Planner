@@ -1,78 +1,309 @@
 <!-- templates/home.html -->
 {% extends "base.html" %}
 
-{% block title %}Smart Study Planner{% endblock %}
+{% block title %}Smart Study Planner & Todo App{% endblock %}
 
 {% block content %}
-<div class="min-h-[80vh] flex items-center">
-    <div class="container mx-auto px-4 py-12">
-        <div class="flex flex-col md:flex-row items-center gap-12">
+<!-- Hero Section -->
+<section class="min-h-[90vh] flex items-center bg-gradient-to-br from-primary-50 to-white dark:from-gray-800 dark:to-gray-900">
+    <div class="container mx-auto px-4 py-16">
+        <div class="flex flex-col lg:flex-row items-center gap-12">
             <!-- Left Column -->
-            <div class="md:w-1/2">
-                <h1 class="text-5xl font-bold mb-6 text-gray-800">Organize Your Study Smarter</h1>
-                <p class="text-xl mb-8 text-gray-600">
-                    AI-powered study planner that helps you focus on what matters most.
-                    Track progress, get recommendations, and achieve your goals.
+            <div class="lg:w-1/2">
+                <h1 class="text-5xl md:text-6xl font-bold mb-6 text-gray-800 dark:text-white">
+                    <span class="gradient-text">Study Smarter,</span><br>
+                    Not Harder
+                </h1>
+                <p class="text-xl mb-8 text-gray-600 dark:text-gray-300">
+                    The all-in-one platform that combines intelligent study planning with task management.
+                    Boost your productivity with AI-powered recommendations and seamless task tracking.
                 </p>
-                <div class="flex gap-4">
+                <div class="flex flex-col sm:flex-row gap-4">
                     <a href="{{ url_for('auth.register') }}" 
-                       class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-lg font-medium">
-                        Get Started
+                       class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition-colors shadow-lg hover:shadow-xl">
+                        <i class="fas fa-rocket mr-2"></i> Get Started - It's Free
                     </a>
                     <a href="{{ url_for('main.about') }}" 
-                       class="border border-blue-600 text-blue-600 hover:bg-blue-50 px-6 py-3 rounded-lg text-lg font-medium">
-                        Learn More
+                       class="border border-primary-600 text-primary-600 dark:text-primary-400 dark:border-primary-400 hover:bg-primary-50 dark:hover:bg-gray-700 px-8 py-4 rounded-lg text-lg font-medium transition-colors">
+                        <i class="fas fa-play-circle mr-2"></i> Watch Demo
                     </a>
+                </div>
+                <div class="mt-8 flex items-center space-x-4">
+                    <div class="flex -space-x-2">
+                        <img class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800" src="https://randomuser.me/api/portraits/women/12.jpg" alt="User">
+                        <img class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800" src="https://randomuser.me/api/portraits/men/32.jpg" alt="User">
+                        <img class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800" src="https://randomuser.me/api/portraits/women/44.jpg" alt="User">
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Trusted by <span class="font-bold text-primary-600 dark:text-primary-400">5,000+</span> students</p>
+                    </div>
                 </div>
             </div>
             
             <!-- Right Column -->
-            <div class="md:w-1/2">
-                <img src="F:\Programming\Python_Shits\Projects\Smart_Study_Planner\app\templates\assets\heroimg.jpg" 
-                     alt="Student studying" 
-                     class="w-full h-auto max-w-md mx-auto">
+            <div class="lg:w-1/2 relative">
+                <div class="relative z-10">
+                    <img src="https://images.unsplash.com/photo-1588072432836-e10032774350?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1472&q=80" 
+                         alt="Student using StudyPlanner" 
+                         class="w-full h-auto rounded-xl shadow-2xl">
+                </div>
+                <div class="absolute -bottom-8 -left-8 w-32 h-32 bg-primary-200 dark:bg-primary-800 rounded-full opacity-50"></div>
+                <div class="absolute -top-8 -right-8 w-24 h-24 bg-primary-300 dark:bg-primary-700 rounded-full opacity-50"></div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Features Section -->
-<section class="bg-white py-16">
+<section class="py-20 bg-white dark:bg-gray-900">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Key Features</h2>
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">Everything You Need to Succeed</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Our integrated platform combines the best of study planning and task management
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <!-- Feature 1 -->
-            <div class="bg-blue-50 p-6 rounded-xl">
-                <div class="text-blue-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700">
+                <div class="text-primary-600 dark:text-primary-400 mb-6 text-4xl">
+                    <i class="fas fa-brain"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Track Progress</h3>
-                <p class="text-gray-600">Log study sessions and visualize your learning journey with detailed analytics.</p>
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Smart Study Plans</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    AI generates personalized study schedules based on your subjects, deadlines, and learning pace.
+                </p>
+                <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Automatic topic prioritization</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Spaced repetition scheduling</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Exam countdown integration</span>
+                    </li>
+                </ul>
             </div>
             
             <!-- Feature 2 -->
-            <div class="bg-blue-50 p-6 rounded-xl">
-                <div class="text-blue-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700">
+                <div class="text-primary-600 dark:text-primary-400 mb-6 text-4xl">
+                    <i class="fas fa-tasks"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">AI Recommendations</h3>
-                <p class="text-gray-600">Get personalized study suggestions based on your progress and goals.</p>
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Integrated Task Management</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Seamlessly manage assignments, projects, and personal tasks alongside your study schedule.
+                </p>
+                <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Priority-based task sorting</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Deadline reminders</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Progress tracking</span>
+                    </li>
+                </ul>
             </div>
             
             <!-- Feature 3 -->
-            <div class="bg-blue-50 p-6 rounded-xl">
-                <div class="text-blue-600 mb-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md hover:shadow-xl transition-shadow border border-gray-100 dark:border-gray-700">
+                <div class="text-primary-600 dark:text-primary-400 mb-6 text-4xl">
+                    <i class="fas fa-chart-line"></i>
                 </div>
-                <h3 class="text-xl font-semibold mb-2">Time Management</h3>
-                <p class="text-gray-600">Allocate study time efficiently across subjects and topics.</p>
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-white">Performance Analytics</h3>
+                <p class="text-gray-600 dark:text-gray-300 mb-4">
+                    Visualize your study patterns and task completion to identify strengths and areas for improvement.
+                </p>
+                <ul class="space-y-2 text-gray-600 dark:text-gray-400">
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Time spent per subject</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Task completion rates</span>
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-check-circle text-green-500 mr-2"></i>
+                        <span>Productivity trends</span>
+                    </li>
+                </ul>
             </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-20 bg-gray-50 dark:bg-gray-800">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">How StudyPlanner Pro Works</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Get started in minutes and transform your study habits
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-4 gap-8">
+            <!-- Step 1 -->
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl font-bold border-4 border-white dark:border-gray-800 shadow-md">
+                    1
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Sign Up</h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Create your free account in under a minute
+                </p>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl font-bold border-4 border-white dark:border-gray-800 shadow-md">
+                    2
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Add Subjects</h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Input your courses and important topics
+                </p>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl font-bold border-4 border-white dark:border-gray-800 shadow-md">
+                    3
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Create Tasks</h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Add assignments, projects, and personal tasks
+                </p>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="text-center">
+                <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center text-primary-600 dark:text-primary-400 text-2xl font-bold border-4 border-white dark:border-gray-800 shadow-md">
+                    4
+                </div>
+                <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white">Get Organized</h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Let AI optimize your schedule automatically
+                </p>
+            </div>
+        </div>
+        
+        <div class="mt-16 text-center">
+            <a href="{{ url_for('auth.register') }}" class="inline-block bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-lg text-lg font-medium transition-colors shadow-lg hover:shadow-xl">
+                Start Your Free Trial
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-20 bg-white dark:bg-gray-900">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold mb-4 text-gray-800 dark:text-white">What Our Users Say</h2>
+            <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Join thousands of students who improved their grades with StudyPlanner Pro
+            </p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Testimonial 1 -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center mb-4">
+                    <div class="text-yellow-400 text-xl">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 italic mb-6">
+                    "StudyPlanner Pro completely transformed how I manage my university workload. The AI recommendations help me focus on what's most important, and the task integration means I never forget assignments."
+                </p>
+                <div class="flex items-center">
+                    <img class="w-12 h-12 rounded-full mr-4" src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah J.">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 dark:text-white">Sarah J.</h4>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Computer Science Student</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testimonial 2 -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center mb-4">
+                    <div class="text-yellow-400 text-xl">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 italic mb-6">
+                    "As a medical student with a heavy workload, this app has been a lifesaver. The analytics show me where I need to spend more time, and the mobile access means I can update my progress anywhere."
+                </p>
+                <div class="flex items-center">
+                    <img class="w-12 h-12 rounded-full mr-4" src="https://randomuser.me/api/portraits/men/45.jpg" alt="David K.">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 dark:text-white">David K.</h4>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Medical Student</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Testimonial 3 -->
+            <div class="bg-gray-50 dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center mb-4">
+                    <div class="text-yellow-400 text-xl">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                </div>
+                <p class="text-gray-600 dark:text-gray-300 italic mb-6">
+                    "The combination of study planning and task management is brilliant. I've gone from barely keeping up to consistently staying ahead in all my classes. My GPA improved by 0.8 in one semester!"
+                </p>
+                <div class="flex items-center">
+                    <img class="w-12 h-12 rounded-full mr-4" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Maria L.">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 dark:text-white">Maria L.</h4>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm">Engineering Student</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-primary-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Study Habits?</h2>
+        <p class="text-xl mb-8 max-w-3xl mx-auto opacity-90">
+            Join thousands of students who are achieving more with less stress
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{{ url_for('auth.register') }}" class="bg-white text-primary-600 hover:bg-gray-100 px-8 py-4 rounded-lg text-lg font-medium transition-colors shadow-lg hover:shadow-xl">
+                Get Started for Free
+            </a>
+            <a href="{{ url_for('main.about') }}" class="bg-transparent border-2 border-white hover:bg-white hover:text-primary-600 px-8 py-4 rounded-lg text-lg font-medium transition-colors">
+                Learn More
+            </a>
         </div>
     </div>
 </section>

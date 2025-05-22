@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
+            Subject Difficulty Distribution
+        </h1>
+        <p class="mt-3 text-xl text-gray-500 dark:text-gray-400">
+            Breakdown of topics by difficulty level
+        </p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="space-y-8">
+            {% for subject in difficulty_data %}
+            <div>
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-200 mb-3">
+                    {{ subject.subject_name }}
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {% for diff in subject.difficulties %}
+                    <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                        <div class="flex justify-between mb-1">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {{ diff.difficulty|title }}
+                            </span>
+                            <span class="text-sm text-gray-500 dark:text-gray-400">
+                                {{ diff.percentage }}%
+                            </span>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+                            <div class="h-2 rounded-full 
+                                {% if diff.difficulty == 'hard' %}bg-red-500 dark:bg-red-400
+                                {% elif diff.difficulty == 'medium' %}bg-yellow-500 dark:bg-yellow-400
+                                {% else %}bg-green-500 dark:bg-green-400{% endif %}" 
+                                style="width: {{ diff.percentage }}%"></div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                            {{ diff.count }} topics
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center text-gray-500 dark:text-gray-400">
+                No subject data available
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

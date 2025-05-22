@@ -6,12 +6,12 @@
 <div class="container mx-auto px-4 py-8 max-w-6xl">
   <!-- Header with Back Button -->
   <div class="flex items-center mb-8">
-    <a href="{{ url_for('main.dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-gray-100 transition-colors duration-200">
-      <i class="fas fa-arrow-left text-gray-600"></i>
+    <a href="{{ url_for('main.dashboard') }}" class="mr-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200">
+      <i class="fas fa-arrow-left text-gray-600 dark:text-gray-300"></i>
     </a>
     <div>
-      <h1 class="text-3xl font-bold text-gray-800">AI Study Planner</h1>
-      <p class="text-gray-500 mt-1">Your personalized study tasks</p>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-white">AI Study Planner</h1>
+      <p class="text-gray-500 dark:text-gray-400 mt-1">Your personalized study tasks</p>
     </div>
   </div>
 
@@ -20,14 +20,14 @@
     <!-- Left Sidebar - Filters and Stats -->
     <div class="lg:col-span-1 space-y-6">
       <!-- Plan Filter Card -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 class="font-semibold text-lg text-gray-800 mb-4">Filter Tasks</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-white mb-4">Filter Tasks</h2>
         
         <div class="space-y-4">
           <!-- Plan Selector -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Study Plan</label>
-            <select id="planFilter" class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Study Plan</label>
+            <select id="planFilter" class="w-full rounded-lg border-gray-300 dark:border-gray-600 focus:border-primary-500 focus:ring-primary-500 text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-white">
               <option value="all" {% if current_filter == 'all' %}selected{% endif %}>All Plans</option>
               {% for plan in study_plans %}
               <option value="{{ plan.id }}" {% if current_filter == plan.id|string %}selected{% endif %}>{{ plan.name }}</option>
@@ -37,15 +37,15 @@
           
           <!-- Status Toggle -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Task Status</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Task Status</label>
             <div class="flex rounded-md shadow-sm">
-              <button type="button" data-status="all" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm rounded-l-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-200">
+              <button type="button" data-status="all" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm rounded-l-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600">
                 All
               </button>
-              <button type="button" data-status="active" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm border-t border-b border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+              <button type="button" data-status="active" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm border-t border-b border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                 Active
               </button>
-              <button type="button" data-status="completed" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm rounded-r-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+              <button type="button" data-status="completed" tabindex="0" class="status-toggle flex-1 py-2 px-3 text-sm rounded-r-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600">
                 Completed
               </button>
             </div>
@@ -54,31 +54,31 @@
       </div>
       
       <!-- Stats Card -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h2 class="font-semibold text-lg text-gray-800 mb-4">Progress Overview</h2>
+      <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
+        <h2 class="font-semibold text-lg text-gray-800 dark:text-white mb-4">Progress Overview</h2>
         
         <div class="space-y-4">
           <!-- Completion Progress -->
           <div>
             <div class="flex justify-between text-sm mb-1">
-              <span class="font-medium text-gray-700">Completion</span>
-              <span class="text-gray-500">{{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}%</span>
+              <span class="font-medium text-gray-700 dark:text-gray-300">Completion</span>
+              <span class="text-gray-500 dark:text-gray-400">{{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}%</span>
             </div>
-            <div class="w-full bg-gray-200 rounded-full h-2">
-              <div class="bg-blue-600 h-2 rounded-full" 
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+              <div class="bg-primary-600 h-2 rounded-full" 
                    style="width: {{ ((stats.completed_ai_tasks / stats.total_ai_tasks * 100) if stats.total_ai_tasks > 0 else 0)|round(1) }}%"></div>
             </div>
           </div>
           
           <!-- Stats Grid -->
           <div class="grid grid-cols-2 gap-3">
-            <div class="bg-blue-50 p-3 rounded-lg">
-              <p class="text-xs font-medium text-blue-800 uppercase tracking-wider">Total</p>
-              <p class="text-xl font-bold mt-1 text-blue-900">{{ stats.total_ai_tasks }}</p>
+            <div class="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg">
+              <p class="text-xs font-medium text-blue-800 dark:text-blue-200 uppercase tracking-wider">Total</p>
+              <p class="text-xl font-bold mt-1 text-blue-900 dark:text-blue-100">{{ stats.total_ai_tasks }}</p>
             </div>
-            <div class="bg-green-50 p-3 rounded-lg">
-              <p class="text-xs font-medium text-green-800 uppercase tracking-wider">Completed</p>
-              <p class="text-xl font-bold mt-1 text-green-900">{{ stats.completed_ai_tasks }}</p>
+            <div class="bg-green-50 dark:bg-green-900/30 p-3 rounded-lg">
+              <p class="text-xs font-medium text-green-800 dark:text-green-200 uppercase tracking-wider">Completed</p>
+              <p class="text-xl font-bold mt-1 text-green-900 dark:text-green-100">{{ stats.completed_ai_tasks }}</p>
             </div>
           </div>
         </div>
@@ -89,11 +89,11 @@
     <div class="lg:col-span-3">
       <!-- Tasks Header -->
       <div class="flex justify-between items-center mb-6">
-        <h2 class="text-xl font-semibold text-gray-800">Your Study Tasks</h2>
+        <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Your Study Tasks</h2>
         <div class="flex items-center space-x-2">
-          <button id="expandAll" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Expand All</button>
-          <span class="text-gray-300">|</span>
-          <button id="collapseAll" class="text-sm text-blue-600 hover:text-blue-800 font-medium">Collapse All</button>
+          <button id="expandAll" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium">Expand All</button>
+          <span class="text-gray-300 dark:text-gray-600">|</span>
+          <button id="collapseAll" class="text-sm text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-300 font-medium">Collapse All</button>
         </div>
       </div>
       
@@ -109,34 +109,34 @@
         {% endfor %}
         
         {% for date, tasks in grouped_tasks|dictsort %}
-        <div class="task-group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden" data-date="{{ date }}">
-          <button class="group-header w-full flex justify-between items-center p-5 hover:bg-gray-50 transition-colors duration-200">
+        <div class="task-group bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden" data-date="{{ date }}">
+          <button class="group-header w-full flex justify-between items-center p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
             <div class="flex items-center">
-              <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-800 flex items-center justify-center mr-3">
+              <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 flex items-center justify-center mr-3">
                 <i class="far fa-calendar-alt text-sm"></i>
               </div>
-              <h3 class="text-lg font-medium text-gray-800">
+              <h3 class="text-lg font-medium text-gray-800 dark:text-white">
                 {{ tasks[0].scheduled_date.strftime('%A, %b %d') }}
               </h3>
             </div>
             <div class="flex items-center">
-              <span class="text-sm text-gray-500 mr-3">
+              <span class="text-sm text-gray-500 dark:text-gray-400 mr-3">
                 {{ tasks|length }} task{{ 's' if tasks|length > 1 else '' }}
               </span>
-              <i class="fas fa-chevron-down text-gray-400 transition-transform duration-200"></i>
+              <i class="fas fa-chevron-down text-gray-400 dark:text-gray-500 transition-transform duration-200"></i>
             </div>
           </button>
           
-          <div class="group-content hidden divide-y divide-gray-100">
+          <div class="group-content hidden divide-y divide-gray-100 dark:divide-gray-700">
             {% for task in tasks %}
-            <div class="task-item p-5 hover:bg-gray-50 transition-colors duration-150 {% if task.is_done %}bg-green-50{% endif %}" 
+            <div class="task-item p-5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 {% if task.is_done %}bg-green-50 dark:bg-green-900/30{% endif %}" 
                  data-plan-id="{{ task.plan_id }}" 
                  data-status="{% if task.is_done %}completed{% else %}active{% endif %}">
               <div class="flex items-start gap-4">
                 <!-- Checkbox -->
                 <form method="POST" action="{{ url_for('main.complete_task', task_id=task.id) }}" class="mt-1">
                   <input type="hidden" name="current_plan_filter" value="{{ current_filter }}">
-                  <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 text-green-600{% else %}bg-gray-100 text-gray-400 hover:bg-green-50 hover:text-green-500{% endif %} transition-colors duration-150">
+                  <button type="submit" class="p-1.5 rounded-full {% if task.is_done %}bg-green-100 dark:bg-green-800 text-green-600 dark:text-green-300{% else %}bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 hover:bg-green-50 dark:hover:bg-green-800/50 hover:text-green-500 dark:hover:text-green-300{% endif %} transition-colors duration-150">
                     <i class="fas {% if task.is_done %}fa-check-circle{% else %}fa-circle{% endif %} text-lg"></i>
                   </button>
                 </form>
@@ -145,22 +145,22 @@
                 <div class="flex-grow">
                   <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                     <div>
-                      <h3 class="font-medium text-gray-800 {% if task.is_done %}line-through text-gray-600{% endif %}">
+                      <h3 class="font-medium text-gray-800 dark:text-white {% if task.is_done %}line-through text-gray-600 dark:text-gray-400{% endif %}">
                         {{ task.title }}
                       </h3>
                       {% if current_filter == 'all' %}
-                      <span class="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full mt-1 inline-block">
+                      <span class="text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full mt-1 inline-block">
                         {{ task.plan.name }}
                       </span>
                       {% endif %}
-                      <p class="text-sm text-gray-600 mt-2 {% if task.is_done %}opacity-75{% endif %}">
+                      <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 {% if task.is_done %}opacity-75{% endif %}">
                         {{ task.description }}
                       </p>
                     </div>
                     <span class="text-xs px-2.5 py-1 rounded-full whitespace-nowrap
-                      {% if task.priority == 1 %}bg-red-100 text-red-800
-                      {% elif task.priority == 2 %}bg-yellow-100 text-yellow-800
-                      {% else %}bg-gray-100 text-gray-800{% endif %}">
+                      {% if task.priority == 1 %}bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300
+                      {% elif task.priority == 2 %}bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300
+                      {% else %}bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300{% endif %}">
                       {% if task.priority == 1 %}High
                       {% elif task.priority == 2 %}Medium
                       {% else %}Low{% endif %} priority
@@ -168,13 +168,13 @@
                   </div>
                   
                   <!-- Task Meta -->
-                  <div class="flex flex-wrap items-center mt-3 text-xs text-gray-500 gap-x-4 gap-y-2">
+                  <div class="flex flex-wrap items-center mt-3 text-xs text-gray-500 dark:text-gray-400 gap-x-4 gap-y-2">
                     <div class="flex items-center">
-                      <i class="fas fa-clock mr-2 text-gray-400"></i>
+                      <i class="fas fa-clock mr-2 text-gray-400 dark:text-gray-500"></i>
                       <span>{{ task.duration_minutes }} minutes</span>
                     </div>
                     <div class="flex items-center">
-                      <i class="fas fa-book mr-2 text-gray-400"></i>
+                      <i class="fas fa-book mr-2 text-gray-400 dark:text-gray-500"></i>
                       <span>{{ task.plan.name if current_filter == 'all' else 'This plan' }}</span>
                     </div>
                   </div>
@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const rate = total > 0 ? ((completed / total) * 100).toFixed(1) : 0;
     
     // Update progress bar
-    document.querySelector('.bg-blue-600').style.width = `${rate}%`;
+    document.querySelector('.bg-primary-600').style.width = `${rate}%`;
     
     // Update numbers
     document.querySelectorAll('.stats-total').forEach(el => {
@@ -310,14 +310,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Status toggle
   statusToggles.forEach(toggle => {
     toggle.addEventListener('click', function() {
-      statusToggles.forEach(t => t.classList.remove('active', 'bg-blue-100', 'text-blue-800'));
-      this.classList.add('active', 'bg-blue-100', 'text-blue-800');
+      statusToggles.forEach(t => t.classList.remove('active', 'bg-primary-100', 'text-primary-800', 'dark:bg-primary-900/50', 'dark:text-primary-200'));
+      this.classList.add('active', 'bg-primary-100', 'text-primary-800', 'dark:bg-primary-900/50', 'dark:text-primary-200');
       applyFilters();
     });
   });
   
   // Initialize with "All" status active
-  document.querySelector('[data-status="all"]').classList.add('active', 'bg-blue-100', 'text-blue-800');
+  document.querySelector('[data-status="all"]').classList.add('active', 'bg-primary-100', 'text-primary-800', 'dark:bg-primary-900/50', 'dark:text-primary-200');
 });
 </script>
 
@@ -333,19 +333,17 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 .status-toggle.active {
   z-index: 10;
+  border-color: var(--primary-500) !important;
 }
 .task-item {
   transition: all 0.2s ease;
 }
-.hover\:bg-gray-50:hover {
-  background-color: #f9fafb;
-}
 
-.status-toggle:focus {
-  background-color: #0e5ad3; /* Example blue color */
-  color: white;
-  outline: none; /* Optional: remove the default focus outline */
+/* Dark mode specific styles */
+@media (prefers-color-scheme: dark) {
+  .status-toggle.active {
+    border-color: var(--primary-700) !important;
+  }
 }
-
 </style>
 {% endblock %}

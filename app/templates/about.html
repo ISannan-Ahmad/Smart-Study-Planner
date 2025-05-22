@@ -1,37 +1,220 @@
 <!-- templates/about.html -->
 {% extends "base.html" %}
 
-{% block title %}About - Smart Study Planner{% endblock %}
+{% block title %}About - Smart Study Planner Pro{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-12">
-    <div class="max-w-3xl mx-auto">
-        <h1 class="text-4xl font-bold mb-8 text-center">About StudyPlanner</h1>
-        
-        <div class="prose prose-lg mx-auto">
-            <p class="mb-6">
-                StudyPlanner is an intelligent application designed to help students organize their study sessions 
-                more effectively. Our mission is to reduce study stress and improve learning outcomes through 
-                smart planning and analytics.
+<div class="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6 text-gray-800 dark:text-white">
+                About <span class="gradient-text">StudyPlanner Pro</span>
+            </h1>
+            <p class="text-xl text-gray-600 dark:text-gray-300">
+                The all-in-one platform designed to help students study smarter, not harder
             </p>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-12">
+    <div class="max-w-4xl mx-auto">
+        <div class="prose prose-lg dark:prose-invert mx-auto">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm mb-12">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Our Mission</h2>
+                <p class="mb-6 text-gray-600 dark:text-gray-300">
+                    At StudyPlanner Pro, we believe that effective learning comes from smart organization, not just hard work. 
+                    Our mission is to empower students with tools that reduce stress, improve time management, and optimize 
+                    learning outcomes through intelligent planning and analytics.
+                </p>
+                <p class="mb-6 text-gray-600 dark:text-gray-300">
+                    We combine the best features of study planners and task managers into one seamless platform, 
+                    enhanced with AI-powered recommendations to help you focus on what matters most.
+                </p>
+            </div>
             
-            <h2 class="text-2xl font-semibold mt-8 mb-4">How It Works</h2>
-            <ol class="list-decimal pl-6 mb-8 space-y-2">
-                <li>Add your subjects and break them down into topics</li>
-                <li>Log your study sessions to track time spent</li>
-                <li>Receive AI-powered recommendations on what to study next</li>
-                <li>View analytics to understand your study patterns</li>
-            </ol>
-            
-            <h2 class="text-2xl font-semibold mt-8 mb-4">Our Team</h2>
-            <div class="grid md:grid-cols-2 gap-6 mb-8">
-                <div class="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 class="text-xl font-medium mb-2">You</h3>
-                    <p class="text-gray-600">Developer & Founder</p>
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm mb-12">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">How It Works</h2>
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">1. Set Up Your Profile</h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Start by adding your subjects, courses, and important deadlines. Our system learns your 
+                            academic priorities and personal schedule.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">2. Add Study Topics</h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Break down each subject into manageable topics and subtopics. Rate your confidence level 
+                            for each to help our AI prioritize.
+                        </p>
+                    </div>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 class="text-xl font-medium mb-2">Flask + Tailwind</h3>
-                    <p class="text-gray-600">Technology Stack</p>
+                <div class="grid md:grid-cols-2 gap-8 mb-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">3. Manage Tasks</h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Add assignments, projects, and personal tasks. Set priorities and deadlines to integrate 
+                            them with your study schedule.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">4. Get Recommendations</h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Our AI analyzes your workload, deadlines, and confidence levels to generate personalized 
+                            study recommendations.
+                        </p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">5. Track Progress</h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Log study sessions and task completion to see your progress over time. Visual analytics 
+                            help identify patterns and areas for improvement.
+                        </p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4 text-gray-800 dark:text-white">6. Adjust and Improve</h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            The system continuously adapts to your performance and feedback, refining recommendations 
+                            to maximize your efficiency.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm mb-12">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Key Features</h2>
+                <div class="space-y-8">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white flex items-center">
+                            <i class="fas fa-brain text-primary-600 dark:text-primary-400 mr-3"></i>
+                            Intelligent Study Planning
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Our AI creates optimized study schedules based on your subjects, deadlines, exam dates, 
+                            and personal learning pace. The system employs spaced repetition techniques to enhance 
+                            long-term retention.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white flex items-center">
+                            <i class="fas fa-tasks text-primary-600 dark:text-primary-400 mr-3"></i>
+                            Integrated Task Management
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Seamlessly combine academic tasks with your study schedule. Set priorities, deadlines, 
+                            and reminders for assignments, projects, and personal commitments.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white flex items-center">
+                            <i class="fas fa-chart-pie text-primary-600 dark:text-primary-400 mr-3"></i>
+                            Comprehensive Analytics
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Visualize your study patterns, time allocation, and task completion rates. Identify 
+                            strengths and weaknesses to continuously improve your approach.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white flex items-center">
+                            <i class="fas fa-bell text-primary-600 dark:text-primary-400 mr-3"></i>
+                            Smart Reminders
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Never miss a study session or deadline with customizable notifications via email, 
+                            browser, and mobile alerts.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800 dark:text-white flex items-center">
+                            <i class="fas fa-mobile-alt text-primary-600 dark:text-primary-400 mr-3"></i>
+                            Cross-Platform Access
+                        </h3>
+                        <p class="text-gray-600 dark:text-gray-300">
+                            Access your study plan and tasks from any device. Our responsive design works perfectly 
+                            on desktop, tablet, and mobile.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm mb-12">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Our Team</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-8">
+                    StudyPlanner Pro was created by a team of former students who understand the challenges of 
+                    managing academic workloads. We combine educational expertise with cutting-edge technology 
+                    to build tools that genuinely help students succeed.
+                </p>
+                
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Team Member 1 -->
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <img class="w-16 h-16 rounded-full mr-4" src="https://randomuser.me/api/portraits/women/43.jpg" alt="Dr. Sarah Chen">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Dr. Sarah Chen</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Educational Psychologist</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Specializes in learning methodologies and cognitive science to optimize study techniques.
+                        </p>
+                    </div>
+                    
+                    <!-- Team Member 2 -->
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <img class="w-16 h-16 rounded-full mr-4" src="https://randomuser.me/api/portraits/men/32.jpg" alt="James Wilson">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">James Wilson</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">Lead Developer</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Full-stack developer with a passion for creating intuitive, user-friendly applications.
+                        </p>
+                    </div>
+                    
+                    <!-- Team Member 3 -->
+                    <div class="bg-gray-50 dark:bg-gray-700 p-6 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <img class="w-16 h-16 rounded-full mr-4" src="https://randomuser.me/api/portraits/women/65.jpg" alt="Maria Rodriguez">
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Maria Rodriguez</h3>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">UX/UI Designer</p>
+                            </div>
+                        </div>
+                        <p class="text-gray-600 dark:text-gray-300 text-sm">
+                            Creates beautiful, functional interfaces that make complex features simple to use.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">Join Our Community</h2>
+                <p class="text-gray-600 dark:text-gray-300 mb-6">
+                    We're constantly improving StudyPlanner Pro based on user feedback. Join our community of 
+                    students and educators to share ideas, tips, and feature requests.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium text-center">
+                        <i class="fab fa-discord mr-2"></i> Discord Community
+                    </a>
+                    <a href="#" class="bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-medium text-center">
+                        <i class="fab fa-github mr-2"></i> GitHub
+                    </a>
+                    <a href="#" class="bg-blue-400 hover:bg-blue-500 text-white px-6 py-3 rounded-lg font-medium text-center">
+                        <i class="fab fa-twitter mr-2"></i> Twitter
+                    </a>
                 </div>
             </div>
         </div>

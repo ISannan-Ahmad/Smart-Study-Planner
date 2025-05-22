@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
+            Task Completion Timeline
+        </h1>
+        <p class="mt-3 text-xl text-gray-500 dark:text-gray-400">
+            Last 30 days of your study activity
+        </p>
+    </div>
+
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+        <div class="space-y-6">
+            {% for day in timeline %}
+            <div>
+                <div class="flex justify-between mb-1">
+                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        {{ day.date }}
+                    </span>
+                    <span class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        {{ day.completed_tasks }}/{{ day.total_tasks }} ({{ day.completion_rate }}%)
+                    </span>
+                </div>
+                <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-green-500 dark:bg-green-400 h-2.5 rounded-full" 
+                         style="width: {{ day.completion_rate }}%"></div>
+                </div>
+            </div>
+            {% else %}
+            <div class="text-center text-gray-500 dark:text-gray-400">
+                No task data available
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

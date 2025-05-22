@@ -5,7 +5,7 @@ import json
 from .schemas import StudyTask
 from pydantic import parse_obj_as
 from typing import List
-
+from datetime import date
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
@@ -38,14 +38,16 @@ Here are the subjects and topics:
         for topic in subject.topics:
             prompt += f"- {topic.name} (Difficulty: {topic.difficulty})\n"
 
-    prompt += """           
+    prompt += f"""           
                 Return ONLY a valid JSON array as e xplained above. Do not return day_1, day_2, etc.
                 Return all the tasks from today to the exam date of each subject so that each topic and subject is covered.
                 If there is time left until the exam date and the subject is complete, add revisions instead of new study.
-                Also add at least one revision for each subject one day before its exam. Make sure that the tasks date that you assign are from today's date for example today is 2025-5-21 and if i create a task today so the task should start from 2025-5-21 to the date of exam for example exam is on 2025-5-29 so you should manage all the tasks between these dates
+                Also add at least one revision for each subject one day before its exam. Make sure that the tasks date that you assign are from today's date for example today is {date.today().isoformat()} and if i create a task today so the task should start from {date.today().isoformat()} to the date of exam for example exam is on 2025-5-29 so you should manage all the tasks between these dates
 
-                Here's an example of how you should format the response:
+                Here's an example of how you should format the response:"""
 
+
+    prompt += """
                 [
                 {
                     "task": "Study Linked List",
