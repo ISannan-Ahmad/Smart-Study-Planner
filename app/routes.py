@@ -61,14 +61,15 @@ def dashboard():
 
     # (Optional) calculate upcoming_deadlines and pass it too
     upcoming_deadlines = []
-    if study_plans:
-        for subject in study_plans.subjects:
-            days_left = (subject.exam_date - now.date()).days
-            if days_left >= 0:  # Only include future deadlines
+    if active_plan:
+        for subject in active_plan.subjects:
+            days_left = (subject.exam_date - datetime.now().date()).days
+            if days_left >= 0:
                 upcoming_deadlines.append({
                     'subject': subject,
                     'days_left': days_left
                 })
+
     
     # Sort by days left (nearest first)
     upcoming_deadlines.sort(key=lambda x: x['days_left'])
